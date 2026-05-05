@@ -60,26 +60,29 @@ params:
   ShowCodeCopyButtons: true
   ShowToc: true
   TocOpen: false
-  copyrightText: "© 2026 Dingfan. 本站内容仅代表作者个人观点与学习记录,不构成任何投资建议或专业意见。"
-  
+
+  footer:
+    hideCopyright: false
+    text: "内容仅代表作者个人观点与学习记录，不构成任何投资建议或专业意见"
+
   homeInfoParams:
     Title: "Dingfan X."
     Content: |
       这里记录技术学习、财经思考、中外文学。
 
-socialIcons:
-  - name: github
-    url: "https://github.com/ddd829"
-  - name: email
-    url: "mailto:comments@dingfanx.com"
+  socialIcons:
+    - name: github
+      url: "https://github.com/ddd829"
+    - name: email
+      url: "mailto:comments@dingfanx.com"
 
-  assets:
+assets:
   favicon: "/favicon.ico"
   favicon16x16: "/favicon-16x16.png"
   favicon32x32: "/favicon-32x32.png"
   apple_touch_icon: "/apple-touch-icon.png"
 
-  copyright: "© 2026 Dingfan. 本站内容采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。"
+copyright: "© 2026 Dingfan. 本站内容采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议"
 
 # 代码高亮配置
 markup:
