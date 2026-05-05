@@ -1,0 +1,81 @@
+baseURL: "https://dingfanx.com/"
+languageCode: "zh-cn"
+title: "Dingfan X."
+theme: "PaperMod"
+
+# 启用代码高亮、目录、阅读时长等
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+
+# 文章目录结构
+permalinks:
+  posts: "/:section/:slug/"
+
+# 主菜单 - 三分类导航
+menu:
+  main:
+    - identifier: tech
+      name: 技术
+      url: /tech/
+      weight: 10
+    - identifier: finance
+      name: 财经
+      url: /finance/
+      weight: 20
+    - identifier: literature
+      name: 文学
+      url: /literature/
+      weight: 30
+    - identifier: archives
+      name: 归档
+      url: /archives/
+      weight: 40
+    - identifier: about
+      name: 关于
+      url: /about/
+      weight: 50
+
+# 主题参数
+params:
+  env: production
+  title: "Dingfan X."
+  description: "技术 · 财经 · 文学"
+  author: "Dingfan"
+  defaultTheme: auto  # 跟随系统暗色/亮色
+  ShowReadingTime: true
+  ShowShareButtons: false
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowToc: true
+  TocOpen: false
+  
+  homeInfoParams:
+    Title: "Dingfan X."
+    Content: |
+      这里记录技术学习、财经思考、中外文学。
+
+  socialIcons:
+    - name: github
+      url: "https://github.com/你的GitHub用户名"
+
+# 代码高亮配置
+markup:
+  highlight:
+    style: github-dark
+    lineNos: true
+    codeFences: true
+    guessSyntax: true
+  goldmark:
+    renderer:
+      unsafe: true  # 允许 markdown 里写 HTML
+
+# 输出格式 - 启用搜索功能
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
