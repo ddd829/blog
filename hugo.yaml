@@ -60,15 +60,18 @@ params:
   ShowCodeCopyButtons: true
   ShowToc: true
   TocOpen: false
+  copyrightText: "© 2026 Dingfan. 本站内容仅代表作者个人观点与学习记录,不构成任何投资建议或专业意见。"
   
   homeInfoParams:
     Title: "Dingfan X."
     Content: |
       这里记录技术学习、财经思考、中外文学。
 
-  socialIcons:
-    - name: github
-      url: "https://github.com/ddd829"
+socialIcons:
+  - name: github
+    url: "https://github.com/ddd829"
+  - name: email
+    url: "mailto:comments@dingfanx.com"
 
   assets:
   favicon: "/favicon.ico"
