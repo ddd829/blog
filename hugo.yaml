@@ -21,28 +21,32 @@ menu:
       name: 技术
       url: /tech/
       weight: 10
-    - identifier: finance
-      name: 财经
-      url: /finance/
+    - identifier: research
+      name: 投研
+      url: /research/
       weight: 20
-    - identifier: literature
-      name: 文学
-      url: /literature/
+    - identifier: news
+      name: 旧闻
+      url: /news/
       weight: 30
+    - identifier: reading
+      name: 阅读
+      url: /reading/
+      weight: 40
     - identifier: archives
       name: 归档
       url: /archives/
-      weight: 40
+      weight: 50
     - identifier: about
       name: 关于
       url: /about/
-      weight: 50
+      weight: 60
 
 # 主题参数
 params:
   env: production
   title: "Dingfan X."
-  description: "技术 · 财经 · 文学"
+  description: "技术 · 投研 · 旧闻 · 阅读"
   author: "Dingfan"
   defaultTheme: auto  # 跟随系统暗色/亮色
   ShowReadingTime: true
