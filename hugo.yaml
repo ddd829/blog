@@ -72,6 +72,8 @@ params:
   favicon32x32: "/favicon-32x32.png"
   apple_touch_icon: "/apple-touch-icon.png"
 
+  copyright: "© 2026 Dingfan. 本站内容采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。"
+
 # 代码高亮配置
 markup:
   highlight:
