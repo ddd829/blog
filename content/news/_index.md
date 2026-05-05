@@ -1,6 +1,6 @@
 ---
-title: "旧闻"
-description: "新闻 · 长文 · 思考"
+title: "旧思"
+description: "旧闻 · 长文 · 思考"
 layout: "list"
 ---
 

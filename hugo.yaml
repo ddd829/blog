@@ -25,28 +25,32 @@ menu:
       name: 投研
       url: /research/
       weight: 20
-    - identifier: news
-      name: 旧闻
-      url: /news/
+    - identifier: workshop
+      name: 工坊
+      url: /workshop/
       weight: 30
+    - identifier: news
+      name: 旧思
+      url: /news/
+      weight: 40
     - identifier: reading
       name: 阅读
       url: /reading/
-      weight: 40
+      weight: 50
     - identifier: archives
       name: 归档
       url: /archives/
-      weight: 50
+      weight: 60
     - identifier: about
       name: 关于
       url: /about/
-      weight: 60
+      weight: 70
 
 # 主题参数
 params:
   env: production
   title: "Dingfan X."
-  description: "技术 · 投研 · 旧闻 · 阅读"
+  description: "技术 · 投研 · 工坊 · 旧思 · 阅读"
   author: "Dingfan"
   defaultTheme: auto  # 跟随系统暗色/亮色
   ShowReadingTime: true
