@@ -64,7 +64,7 @@ params:
 
   socialIcons:
     - name: github
-      url: "https://github.com/ddd829/blog"
+      url: "https://github.com/ddd829"
 
   assets:
   favicon: "/favicon.ico"
