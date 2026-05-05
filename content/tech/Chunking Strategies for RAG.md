@@ -16,8 +16,6 @@ tags:
 summary: 基于 Pinecone Chunking Strategies 的精读笔记。重点整理了 chunk size 的双重影响、embedding 容量瓶颈与 lost-in-the-middle 的本质区别、RAG vs long context 的工程权衡、以及切分与增强的正交矩阵思维。
 ---
 
-# Chunking Strategies for RAG
-
 > 基于 Pinecone 文章和与 Claude 的讨论整理。后续会持续补充阅读其他文献（尤其是 Liu et al. 2023 等原始论文）后的修正与扩展。目前文中 Claude 提供的数据未经验证，无法保证可靠，但大方向的正确与否是很显然的，比如几种 chunk method 的效率和成本。
 
 ## 1. Chunking 的本质：信息完整度 vs 信息纯度的权衡
