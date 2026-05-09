@@ -37,14 +37,18 @@ menu:
       name: 阅读
       url: /reading/
       weight: 50
+    - identifier: search
+      name: 🔍
+      url: /search/
+      weight: 60
     - identifier: archives
       name: 归档
       url: /archives/
-      weight: 60
+      weight: 70
     - identifier: about
       name: 关于
       url: /about/
-      weight: 70
+      weight: 80
 
 # 主题参数
 params:
@@ -75,6 +79,19 @@ params:
       url: "https://github.com/ddd829"
     - name: email
       url: "mailto:comments@dingfanx.com"
+    
+  # 搜索功能配置
+  fuseOpts:
+    isCaseSensitive: false       # 不区分大小写
+    shouldSort: true             # 按相关度排序
+    location: 0
+    distance: 1000
+    threshold: 0               # 模糊匹配阈值,0=完全匹配,1=匹配任何东西
+    minMatchCharLength: 0
+    keys:                        # 哪些字段参与搜索
+      - title                    # 标题
+      - permalink                # URL
+      - summary                  # 摘要
 
 assets:
   favicon: "/favicon.ico"
