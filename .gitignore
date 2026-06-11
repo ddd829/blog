@@ -1,4 +1,6 @@
-public/
-resources/
-.hugo_build.lock
+node_modules/
+dist/
+.astro/
 .superpowers/
+hugo-legacy/public/
+hugo-legacy/resources/
