@@ -26,7 +26,9 @@
     const head = document.createElement('div');
     head.className = 'code-head';
     const title = pre.getAttribute('data-title');
-    head.innerHTML = `<span>${title ?? ''}</span>`;
+    const span = document.createElement('span');
+    span.textContent = title ?? '';
+    head.appendChild(span);
     const btn = document.createElement('button');
     btn.className = 'code-copy';
     btn.textContent = '复制';

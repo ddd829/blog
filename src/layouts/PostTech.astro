@@ -9,6 +9,8 @@ import PostEnhance from '../components/PostEnhance.astro';
 import { SECTIONS, SITE } from '../config';
 import { readingTime } from '../lib/reading-time';
 import type { Post } from '../lib/posts';
+import { blogPostingLd } from '../lib/json-ld';
+import { formatCnDate } from '../lib/format-date';
 import '../styles/prose.css';
 import '../styles/prose-tech.css';
 
@@ -19,14 +21,7 @@ interface Props {
 const { post, headings, prev, next, related } = Astro.props;
 const rt = readingTime(post.body ?? '');
 const d = post.data.date;
-const fmt = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
-const jsonLd = {
-  '@context': 'https://schema.org', '@type': 'BlogPosting',
-  headline: post.data.title, datePublished: d.toISOString(),
-  ...(post.data.updated && { dateModified: post.data.updated.toISOString() }),
-  author: { '@type': 'Person', name: SITE.author, url: SITE.url },
-  url: new URL(`/${post.id}/`, SITE.url).href,
-};
+const jsonLd = blogPostingLd(post);
 ---
 <Base
   title={post.data.title}
@@ -42,9 +37,9 @@ const jsonLd = {
         <a class="sec" href={`/${post.section}/`}>{SECTIONS[post.section].name}</a>
         <h1>{post.data.title}</h1>
         <div class="meta meta-ui">
-          <span>{fmt}</span><span class="sep">·</span><span>{rt.minutes} 分钟</span>
+          <span>{formatCnDate(d)}</span><span class="sep">·</span><span>{rt.minutes} 分钟</span>
           {post.data.tags.map((t) => (
-            <a class="chip" href={`/tags/${t}/`}>{t}</a>
+            <a class="chip" href={`/tags/${encodeURIComponent(t)}/`}>{t}</a>
           ))}
         </div>
       </header>
