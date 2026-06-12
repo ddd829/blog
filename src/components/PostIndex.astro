@@ -1,0 +1,45 @@
+---
+import { SECTIONS } from '../config';
+import { postNumber } from '../lib/numbering';
+import type { Post } from '../lib/posts';
+
+interface Props { posts: Post[]; all: Post[]; showSection?: boolean }
+const { posts, all, showSection = true } = Astro.props;
+const fmt = (d: Date) =>
+  `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+---
+<div class="post-index">
+  {posts.map((post) => (
+    <a class="row" href={`/${post.id}/`}>
+      <span class="no">{String(postNumber(post, all)).padStart(3, '0')}</span>
+      <span class="title">{post.data.pinned && <span class="pin" title="置顶">置顶</span>}{post.data.title}</span>
+      <span class="meta meta-ui">
+        {showSection && <>{SECTIONS[post.section].name} · </>}{fmt(post.data.date)}
+      </span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .post-index { border-top: 1px solid var(--hair); }
+  .row {
+    display: flex; gap: 32px; align-items: baseline;
+    padding: 22px 0; border-bottom: 1px solid var(--hair);
+    text-decoration: none;
+  }
+  .no { font-family: var(--font-ui); font-size: 12px; color: var(--faint); width: 48px; flex-shrink: 0; }
+  .title { font-size: 20px; font-weight: 600; flex: 1; line-height: 1.6; }
+  .row:hover .title { color: var(--accent); }
+  .pin {
+    font-family: var(--font-ui); font-size: 10.5px; color: var(--accent);
+    border: 1px solid var(--accent-soft); border-radius: 99px;
+    padding: 2px 9px; margin-right: 10px; vertical-align: 3px;
+  }
+  .meta { letter-spacing: 0.1em; white-space: nowrap; }
+  @media (max-width: 720px) {
+    .row { flex-wrap: wrap; gap: 8px 16px; padding: 18px 0; }
+    .no { width: auto; }
+    .title { flex-basis: 100%; font-size: 18px; }
+    .meta { margin-left: 38px; }
+  }
+</style>
