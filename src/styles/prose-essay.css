@@ -1,0 +1,17 @@
+.prose-essay { font-size: 16.5px; line-height: 2.15; }
+.prose-essay > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-size: 3.4em; line-height: 0.8;
+  float: left; margin: 10px 10px 0 0;
+  color: var(--accent);
+}
+.prose-essay h2 {
+  font-size: 24px; font-weight: 600; margin: 56px 0 0;
+  text-align: center;
+}
+.prose-essay h2::after {
+  content: ''; display: block; width: 32px; height: 1px;
+  background: var(--hair); margin: 16px auto 0;
+}
+.prose-essay h3 { font-size: 19px; font-weight: 600; margin: 40px 0 0; }
+.prose-essay p { margin: 26px 0 0; }

@@ -1,0 +1,51 @@
+---
+import type { MarkdownHeading } from 'astro';
+interface Props { headings: MarkdownHeading[]; label?: string }
+const { headings, label = '目录' } = Astro.props;
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+{items.length > 1 && (
+  <nav class="toc" data-toc aria-label="目录">
+    <div class="toc-label">{label}</div>
+    {items.map((h) => (
+      <a href={`#${h.slug}`} class:list={['toc-item', `d${h.depth}`]} data-target={h.slug}>{h.text}</a>
+    ))}
+  </nav>
+)}
+
+<style>
+  .toc { font-family: var(--font-ui); font-size: 12.5px; font-weight: 300; }
+  .toc-label {
+    font-size: 10px; letter-spacing: 0.3em; color: var(--faint);
+    margin-bottom: 10px; font-weight: 500;
+  }
+  .toc-item {
+    display: block; color: var(--faint); text-decoration: none;
+    line-height: 1.7; padding: 5px 0 5px 12px;
+    border-left: 1px solid var(--hair);
+  }
+  .toc-item.d3 { padding-left: 26px; }
+  .toc-item:hover { color: var(--ink); }
+  .toc-item.active { color: var(--accent); border-left-color: var(--accent); }
+</style>
+
+<script>
+  const toc = document.querySelector('[data-toc]');
+  if (toc) {
+    const links = [...toc.querySelectorAll('.toc-item')] as HTMLElement[];
+    const targets = links
+      .map((l) => document.getElementById(l.dataset.target!))
+      .filter(Boolean) as HTMLElement[];
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.toggle('active', l.dataset.target === e.target.id));
+          }
+        }
+      },
+      { rootMargin: '-72px 0px -70% 0px' }
+    );
+    targets.forEach((t) => obs.observe(t));
+  }
+</script>

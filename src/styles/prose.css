@@ -1,0 +1,61 @@
+.prose { color: var(--ink-2); }
+.prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-soft);
+  text-underline-offset: 4px;
+}
+.prose :is(h2, h3, h4) { color: var(--ink); scroll-margin-top: 80px; }
+.prose code:not(pre code) {
+  font-family: var(--font-mono); font-size: 0.85em;
+  background: var(--chip-bg); border: 1px solid var(--chip-border);
+  padding: 2px 6px; border-radius: 5px; color: var(--accent);
+}
+.prose pre.astro-code {
+  margin: 32px 0; padding: 18px 20px;
+  border: 1px solid var(--code-border); border-radius: 10px;
+  font-size: 13.5px; line-height: 1.75;
+  position: relative;
+}
+.prose pre.astro-code[data-title] { padding-top: 52px; }
+.prose .code-head {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 16px; border-bottom: 1px solid var(--code-border);
+  font-family: var(--font-mono); font-size: 11.5px; color: #7b8290;
+}
+.prose .code-copy {
+  background: none; border: 0; color: #7b8290; cursor: pointer;
+  font-family: var(--font-ui); font-size: 11.5px;
+}
+.prose .code-copy:hover { color: #dde1e8; }
+.prose pre.astro-code:not([data-title]) .code-head {
+  border: 0; justify-content: flex-end; background: transparent;
+}
+.prose blockquote {
+  margin: 36px 0; padding: 4px 0 4px 26px;
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-display); font-style: italic;
+  font-size: 1.1em; line-height: 1.9; color: var(--dim);
+}
+.prose blockquote p { margin: 0; }
+.prose .callout {
+  display: flex; gap: 13px; margin: 32px 0;
+  background: var(--bg-raised); border: 1px solid var(--hair);
+  border-radius: 10px; padding: 16px 18px;
+  font-family: var(--font-ui); font-size: 14.5px; line-height: 1.85;
+}
+.prose .callout::before { content: attr(data-icon); font-size: 16px; line-height: 1.6; }
+.prose .callout p { margin: 0; }
+.prose .callout-warn { border-color: color-mix(in srgb, var(--accent) 35%, var(--hair)); }
+.prose table { border-collapse: collapse; width: 100%; margin: 30px 0; font-family: var(--font-ui); font-size: 14px; }
+.prose th, .prose td { border-bottom: 1px solid var(--hair-2); padding: 11px 16px; text-align: left; }
+.prose th { background: var(--bg-raised); font-weight: 600; color: var(--dim); }
+.prose figure { margin: 36px 0; }
+.prose figure img, .prose p > img { border-radius: 4px; cursor: zoom-in; }
+.prose figcaption {
+  text-align: center; font-family: var(--font-ui);
+  font-size: 12px; color: var(--faint); margin-top: 12px;
+}
+.prose hr { border: 0; border-top: 1px solid var(--hair); margin: 48px auto; width: 64px; }
+.prose .katex-display { overflow-x: auto; padding: 8px 0; }
