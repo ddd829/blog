@@ -1,0 +1,34 @@
+---
+import { SITE } from '../config';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container inner">
+    <div class="left">
+      <div class="mark">Dingfan&nbsp;X<span class="dot">.</span></div>
+      <p class="legal">
+        © {year} {SITE.author} · 本站内容采用
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="license">CC BY-NC-SA 4.0</a> 协议<br />
+        内容仅代表作者个人观点与学习记录，不构成任何投资建议或专业意见
+      </p>
+    </div>
+    <nav class="links" aria-label="站外链接">
+      <a href="/rss.xml">RSS</a>
+      <a href={SITE.github}>GitHub</a>
+      <a href={`mailto:${SITE.email}`}>Email</a>
+      <a href="/friends/">友链</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer { margin-top: 96px; border-top: 1px solid var(--hair); }
+  .inner { display: flex; justify-content: space-between; gap: 32px; padding-top: 36px; padding-bottom: 48px; flex-wrap: wrap; }
+  .mark { font-family: var(--font-wordmark); font-size: 17px; }
+  .dot { color: var(--accent); }
+  .legal { font-family: var(--font-ui); font-size: 12.5px; line-height: 2; color: var(--faint); margin: 10px 0 0; }
+  .legal a { color: var(--dim); }
+  .links { display: flex; gap: 22px; align-items: start; padding-top: 4px; }
+  .links a { font-family: var(--font-ui); font-size: 13px; color: var(--dim); text-decoration: none; }
+  .links a:hover { color: var(--ink); }
+</style>

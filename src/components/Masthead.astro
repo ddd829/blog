@@ -1,0 +1,110 @@
+---
+import { SECTIONS } from '../config';
+const current = Astro.url.pathname.split('/')[1] ?? '';
+---
+<header class="masthead">
+  <div class="top container">
+    <a class="wordmark" href="/">Dingfan&nbsp;X<span class="dot">.</span></a>
+    <div class="utils">
+      <button class="icon-btn" data-search-open aria-label="搜索">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+      <button class="icon-btn" data-theme-toggle aria-label="切换深浅色">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="navband" aria-label="栏目">
+    <div class="inner container">
+      {Object.entries(SECTIONS).map(([key, s]) => (
+        <a href={`/${key}/`} class:list={['item', { cur: current === key }]}>{s.name}</a>
+      ))}
+      <span class="spacer"></span>
+      <a href="/archives/" class:list={['item', 'sub', { cur: current === 'archives' }]}>归档</a>
+      <a href="/about/" class:list={['item', 'sub', { cur: current === 'about' }]}>关于</a>
+    </div>
+  </nav>
+</header>
+
+<div class="minibar" data-minibar>
+  <div class="container inner">
+    <a class="mini-mark" href="/">D<span class="dot">.</span></a>
+    <nav class="mini-nav">
+      {Object.entries(SECTIONS).map(([key, s]) => (
+        <a href={`/${key}/`} class:list={[{ cur: current === key }]}>{s.name}</a>
+      ))}
+    </nav>
+    <button class="icon-btn" data-search-open aria-label="搜索">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .masthead .top { display: flex; justify-content: space-between; align-items: center; padding-top: 26px; padding-bottom: 22px; }
+  .wordmark { font-family: var(--font-wordmark); font-weight: 400; font-size: 24px; text-decoration: none; }
+  .dot { color: var(--accent); }
+  .utils { display: flex; gap: 14px; }
+  .icon-btn { background: none; border: 0; padding: 6px; color: var(--faint); cursor: pointer; }
+  .icon-btn:hover { color: var(--ink); }
+
+  .navband { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+  .navband .inner { display: flex; gap: 40px; overflow-x: auto; scrollbar-width: none; }
+  .navband .inner::-webkit-scrollbar { display: none; }
+  .item {
+    font-family: var(--font-ui); font-size: 14.5px; font-weight: 500;
+    color: var(--dim); padding: 13px 0; text-decoration: none;
+    position: relative; white-space: nowrap;
+  }
+  .item:hover { color: var(--ink); }
+  .item.cur { color: var(--ink); font-weight: 600; }
+  .item.cur::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--ink); }
+  .spacer { flex: 1; }
+  .sub { color: var(--faint); }
+  @media (max-width: 720px) { .navband .inner { gap: 26px; } .spacer { min-width: 8px; flex: 0; } }
+
+  .minibar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg-plain) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--hair);
+    transform: translateY(-100%); transition: transform 0.25s;
+  }
+  .minibar.show { transform: translateY(0); }
+  .minibar .inner { display: flex; align-items: center; justify-content: space-between; padding-top: 11px; padding-bottom: 11px; }
+  .mini-mark { font-family: var(--font-wordmark); font-size: 17px; text-decoration: none; }
+  .mini-nav { display: flex; gap: 30px; overflow-x: auto; scrollbar-width: none; }
+  .mini-nav a { font-family: var(--font-ui); font-size: 13.5px; font-weight: 500; color: var(--dim); text-decoration: none; white-space: nowrap; }
+  .mini-nav a.cur { color: var(--ink); font-weight: 600; }
+  @media (max-width: 720px) { .mini-nav { gap: 18px; } }
+</style>
+
+<script>
+  const minibar = document.querySelector('[data-minibar]');
+  const masthead = document.querySelector('.masthead');
+  if (minibar && masthead) {
+    const threshold = (masthead as HTMLElement).offsetHeight + 60;
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        minibar.classList.toggle('show', scrollY > threshold);
+        ticking = false;
+      });
+    });
+  }
+
+  document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('theme', next);
+      dispatchEvent(new CustomEvent('themechange', { detail: next }));
+    })
+  );
+
+  document.querySelectorAll('[data-search-open]').forEach((btn) =>
+    btn.addEventListener('click', () => dispatchEvent(new CustomEvent('open-search')))
+  );
+</script>
