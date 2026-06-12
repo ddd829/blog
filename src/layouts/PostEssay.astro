@@ -1,0 +1,89 @@
+---
+import type { MarkdownHeading } from 'astro';
+import Base from './Base.astro';
+import Toc from '../components/Toc.astro';
+import PostFootNav from '../components/PostFootNav.astro';
+import RelatedPosts from '../components/RelatedPosts.astro';
+import Giscus from '../components/Giscus.astro';
+import PostEnhance from '../components/PostEnhance.astro';
+import { SECTIONS, SITE } from '../config';
+import { postNumber } from '../lib/numbering';
+import { readingTime } from '../lib/reading-time';
+import type { Post } from '../lib/posts';
+import '../styles/prose.css';
+import '../styles/prose-essay.css';
+
+interface Props {
+  post: Post; all: Post[]; headings: MarkdownHeading[];
+  prev?: Post | undefined; next?: Post | undefined; related: Post[];
+}
+const { post, all, headings, prev, next, related } = Astro.props;
+const rt = readingTime(post.body ?? '');
+const d = post.data.date;
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'BlogPosting',
+  headline: post.data.title, datePublished: d.toISOString(),
+  ...(post.data.updated && { dateModified: post.data.updated.toISOString() }),
+  author: { '@type': 'Person', name: SITE.author, url: SITE.url },
+  url: new URL(`/${post.id}/`, SITE.url).href,
+};
+---
+<Base
+  title={post.data.title}
+  description={post.data.summary ?? `${SITE.title} · ${SECTIONS[post.section].name}`}
+  surface="paper"
+  ogImage={new URL(`/og/${post.id}.png`, SITE.url).href}
+  jsonLd={jsonLd}
+>
+  <PostEnhance />
+  <main>
+    <header class="head">
+      <div class="kicker">
+        N° {String(postNumber(post, all)).padStart(3, '0')} · {SECTIONS[post.section].name} ·
+        {d.getFullYear()} 年 {d.getMonth() + 1} 月 {d.getDate()} 日
+      </div>
+      <h1>{post.data.title}</h1>
+      <div class="meta meta-ui">
+        约 {rt.words.toLocaleString()} 字 · 阅读 {rt.minutes} 分钟
+        {post.data.tags.map((t) => (
+          <a class="tag" href={`/tags/${t}/`}>#{t}</a>
+        ))}
+      </div>
+      <div class="rule"></div>
+    </header>
+
+    <div class="body container">
+      <aside class="side"><div class="sticky"><Toc headings={headings} /></div></aside>
+      <article class="prose prose-essay"><slot /></article>
+      <div></div>
+    </div>
+
+    <div class="tail">
+      <PostFootNav prev={prev} next={next} />
+      <RelatedPosts posts={related} />
+      <Giscus />
+    </div>
+  </main>
+</Base>
+
+<style>
+  .head { max-width: 760px; margin: 0 auto; padding: 72px 48px 0; text-align: center; }
+  .head h1 {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 4.2vw, 46px);
+    line-height: 1.25; font-weight: 500; margin: 22px 0 0;
+  }
+  .meta { margin-top: 20px; letter-spacing: 0.08em; }
+  .tag { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--hair); margin-left: 10px; }
+  .tag:hover { color: var(--accent); }
+  .rule { width: 48px; height: 1px; background: var(--ink); margin: 40px auto 0; }
+  .body { display: grid; grid-template-columns: 180px minmax(0, var(--w-essay)) 180px; gap: 0; justify-content: center; padding-top: 48px; }
+  .side .sticky { position: sticky; top: 84px; }
+  .tail { max-width: var(--w-essay); margin: 0 auto; padding: 0 48px; }
+  @media (max-width: 1020px) {
+    .body { grid-template-columns: minmax(0, 1fr); padding-left: 22px; padding-right: 22px; }
+    .side { display: none; }
+    .head { padding: 48px 22px 0; }
+    .tail { padding: 0 22px; }
+  }
+</style>

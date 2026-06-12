@@ -1,0 +1,81 @@
+---
+import type { MarkdownHeading } from 'astro';
+import Base from './Base.astro';
+import Toc from '../components/Toc.astro';
+import PostFootNav from '../components/PostFootNav.astro';
+import RelatedPosts from '../components/RelatedPosts.astro';
+import Giscus from '../components/Giscus.astro';
+import PostEnhance from '../components/PostEnhance.astro';
+import { SECTIONS, SITE } from '../config';
+import { readingTime } from '../lib/reading-time';
+import type { Post } from '../lib/posts';
+import '../styles/prose.css';
+import '../styles/prose-tech.css';
+
+interface Props {
+  post: Post; all: Post[]; headings: MarkdownHeading[];
+  prev?: Post | undefined; next?: Post | undefined; related: Post[];
+}
+const { post, headings, prev, next, related } = Astro.props;
+const rt = readingTime(post.body ?? '');
+const d = post.data.date;
+const fmt = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'BlogPosting',
+  headline: post.data.title, datePublished: d.toISOString(),
+  ...(post.data.updated && { dateModified: post.data.updated.toISOString() }),
+  author: { '@type': 'Person', name: SITE.author, url: SITE.url },
+  url: new URL(`/${post.id}/`, SITE.url).href,
+};
+---
+<Base
+  title={post.data.title}
+  description={post.data.summary ?? `${SITE.title} · ${SECTIONS[post.section].name}`}
+  surface="plain"
+  ogImage={new URL(`/og/${post.id}.png`, SITE.url).href}
+  jsonLd={jsonLd}
+>
+  <PostEnhance />
+  <main class="container layout">
+    <div class="col">
+      <header class="head">
+        <a class="sec" href={`/${post.section}/`}>{SECTIONS[post.section].name}</a>
+        <h1>{post.data.title}</h1>
+        <div class="meta meta-ui">
+          <span>{fmt}</span><span class="sep">·</span><span>{rt.minutes} 分钟</span>
+          {post.data.tags.map((t) => (
+            <a class="chip" href={`/tags/${t}/`}>{t}</a>
+          ))}
+        </div>
+      </header>
+      <article class="prose prose-tech"><slot /></article>
+      <PostFootNav prev={prev} next={next} />
+      <RelatedPosts posts={related} />
+      <Giscus />
+    </div>
+    <aside class="side">
+      <div class="sticky"><Toc headings={headings} label="本页目录" /></div>
+    </aside>
+  </main>
+</Base>
+
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, var(--w-tech)) 1fr; gap: 72px; padding-top: 64px; }
+  .sec { font-family: var(--font-ui); font-size: 13px; color: var(--accent); font-weight: 500; text-decoration: none; }
+  .head h1 {
+    font-size: clamp(27px, 3.4vw, 36px); line-height: 1.4;
+    font-weight: 700; margin: 14px 0 0; letter-spacing: 0.005em;
+  }
+  .meta { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .sep { color: var(--hair); }
+  .chip {
+    background: var(--chip-bg); border: 1px solid var(--chip-border);
+    padding: 3px 10px; border-radius: 99px; font-size: 12px;
+    color: var(--dim); text-decoration: none;
+  }
+  .chip:hover { color: var(--accent); }
+  .head { margin-bottom: 44px; }
+  .side { padding-top: 8px; }
+  .side .sticky { position: sticky; top: 84px; }
+  @media (max-width: 1020px) { .layout { grid-template-columns: minmax(0, 1fr); } .side { display: none; } }
+</style>

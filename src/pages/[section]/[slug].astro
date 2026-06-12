@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import PostEssay from '../../layouts/PostEssay.astro';
+import PostTech from '../../layouts/PostTech.astro';
+import { getPosts, type Post } from '../../lib/posts';
+import { relatedPosts } from '../../lib/related';
+import { SECTIONS } from '../../config';
+
+export async function getStaticPaths() {
+  const all = await getPosts();
+  return all.map((post) => {
+    const [section, slug] = post.id.split('/');
+    const inSection = all.filter((p) => p.section === section);
+    const i = inSection.findIndex((p) => p.id === post.id);
+    return {
+      params: { section, slug },
+      props: {
+        post,
+        all,
+        prev: inSection[i + 1],  // 列表按新→旧，i+1 为较早一篇
+        next: inSection[i - 1],
+        related: relatedPosts(post, all, 3),
+      },
+    };
+  });
+}
+
+interface Props { post: Post; all: Post[]; prev?: Post; next?: Post; related: Post[] }
+const { post, all, prev, next, related } = Astro.props;
+const { Content, headings } = await render(post);
+const mode = post.data.layout ?? SECTIONS[post.section].mode;
+const Layout = mode === 'essay' ? PostEssay : PostTech;
+---
+<Layout post={post} all={all} headings={headings} prev={prev} next={next} related={related}>
+  <Content />
+</Layout>
