@@ -1,0 +1,31 @@
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s, color 0.25s;
+}
+body[data-surface='plain'] { background: var(--bg-plain); }
+a { color: inherit; }
+img { max-width: 100%; height: auto; }
+.container { max-width: var(--w-page); margin: 0 auto; padding: 0 48px; }
+@media (max-width: 720px) { .container { padding: 0 22px; } }
+
+.kicker {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.meta-ui { font-family: var(--font-ui); font-size: 13px; color: var(--faint); }
+.hairline { border: 0; border-top: 1px solid var(--hair); }
+
+/* 屏读辅助 */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  clip: rect(0 0 0 0); overflow: hidden; white-space: nowrap;
+}

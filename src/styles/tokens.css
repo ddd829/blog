@@ -1,0 +1,46 @@
+:root {
+  /* 纸面亮色 */
+  --bg: #f6f4ef;            /* 随笔/首页底 */
+  --bg-plain: #fdfdfc;      /* 技术页底 */
+  --bg-raised: #efece3;     /* 卡片/浮层 */
+  --ink: #171511;
+  --ink-2: #3b3a35;
+  --dim: #5c5950;
+  --faint: #a09b8e;
+  --hair: #ddd7c9;
+  --hair-2: #e8e6e1;
+  --accent: #a8462d;
+  --accent-soft: #e0bdb2;
+  --code-bg: #16181d;
+  --code-border: #2a2d35;
+  --chip-bg: #f1efe9;
+  --chip-border: #e5e2da;
+
+  --font-serif: 'Noto Serif SC', 'Songti SC', serif;
+  --font-display: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  --font-wordmark: 'Fraunces', 'Noto Serif SC', serif;
+  --font-ui: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+
+  --w-page: 1100px;
+  --w-essay: 620px;
+  --w-tech: 680px;
+}
+
+[data-theme='dark'] {
+  --bg: #101312;
+  --bg-plain: #131614;
+  --bg-raised: #1a1d1b;
+  --ink: #e8e3d8;
+  --ink-2: #cfc9bc;
+  --dim: #9a958a;
+  --faint: #6f6f66;
+  --hair: #2a2d2a;
+  --hair-2: #262927;
+  --accent: #c2a356;
+  --accent-soft: #5e5333;
+  --code-bg: #0b0d0c;
+  --code-border: #23262e;
+  --chip-bg: #1d201e;
+  --chip-border: #2a2d2a;
+}
