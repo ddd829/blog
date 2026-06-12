@@ -42,7 +42,7 @@ const jsonLd = blogPostingLd(post);
       <div class="meta meta-ui">
         约 {rt.words.toLocaleString()} 字 · 阅读 {rt.minutes} 分钟
         {post.data.tags.map((t) => (
-          <a class="tag" href={`/tags/${encodeURIComponent(t)}/`}>#{t}</a>
+          <a class="tag" href={`/tags/${t}/`}>#{t}</a>
         ))}
       </div>
       <div class="rule"></div>

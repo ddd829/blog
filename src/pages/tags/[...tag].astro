@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostIndex from '../../components/PostIndex.astro';
+import { getPosts } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const all = await getPosts();
+  const tags = new Set(all.flatMap((p) => p.data.tags));
+  return [...tags].map((tag) => ({
+    params: { tag },
+    props: { posts: all.filter((p) => p.data.tags.includes(tag)), all },
+  }));
+}
+const { posts, all } = Astro.props;
+const { tag } = Astro.params;
+---
+<Base title={`标签：${tag}`} description={`标签「${tag}」下的全部文章`}>
+  <main class="container">
+    <header class="head">
+      <h1 class="name">#{tag}</h1>
+      <p class="meta-ui">共 {posts.length} 篇</p>
+    </header>
+    <PostIndex posts={posts} all={all} />
+  </main>
+</Base>
+
+<style>
+  .head { padding: 64px 0 40px; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 12px; }
+</style>

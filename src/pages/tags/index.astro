@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPosts } from '../../lib/posts';
+
+const all = await getPosts();
+const counts = new Map<string, number>();
+for (const p of all) for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+const max = tags[0]?.[1] ?? 1;
+const size = (n: number) => 14 + (n / max) * 14; // 14px–28px
+---
+<Base title="标签" description="按标签浏览全部文章">
+  <main class="container">
+    <header class="head">
+      <h1 class="name">标签</h1>
+      <p class="meta-ui">{tags.length} 个标签 · {all.length} 篇文章</p>
+    </header>
+    <div class="cloud">
+      {tags.map(([tag, n]) => (
+        <a href={`/tags/${tag}/`} style={`font-size:${size(n)}px`}>{tag}<sup>{n}</sup></a>
+      ))}
+    </div>
+  </main>
+</Base>
+
+<style>
+  .head { padding: 64px 0 40px; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 12px; }
+  .cloud { display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: baseline; max-width: 760px; }
+  .cloud a { text-decoration: none; font-weight: 500; line-height: 1.4; }
+  .cloud a:hover { color: var(--accent); }
+  .cloud sup { font-family: var(--font-ui); font-size: 11px; color: var(--faint); margin-left: 3px; }
+</style>

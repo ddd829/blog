@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import { SECTIONS } from '../config';
+import { getPosts } from '../lib/posts';
+
+const all = await getPosts();
+const byYear = new Map<number, typeof all>();
+for (const p of all) {
+  const y = p.data.date.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(p);
+}
+const years = [...byYear.entries()].sort((a, b) => b[0] - a[0]);
+const fmt = (d: Date) => `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+---
+<Base title="归档" description="全部文章按年归档">
+  <main class="container">
+    <header class="head">
+      <h1 class="name">归档</h1>
+      <p class="meta-ui">共 {all.length} 篇 · <a class="taglink" href="/tags/">按标签浏览 →</a></p>
+    </header>
+    {years.map(([year, posts]) => (
+      <section class="year">
+        <h2 class="y">{year}</h2>
+        <div class="list">
+          {posts.map((p) => (
+            <a class="row" href={`/${p.id}/`}>
+              <span class="d meta-ui">{fmt(p.data.date)}</span>
+              <span class="t">{p.data.title}</span>
+              <span class="s meta-ui">{SECTIONS[p.section].name}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </main>
+</Base>
+
+<style>
+  .head { padding: 64px 0 24px; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 12px; }
+  .taglink { color: var(--dim); text-decoration: none; }
+  .taglink:hover { color: var(--accent); }
+  .year { margin-top: 36px; }
+  .y { font-family: var(--font-display); font-size: 28px; font-weight: 500; margin: 0 0 6px; color: var(--faint); }
+  .row {
+    display: flex; gap: 24px; align-items: baseline;
+    padding: 13px 0; border-bottom: 1px solid var(--hair);
+    text-decoration: none;
+  }
+  .d { letter-spacing: 0.1em; flex-shrink: 0; }
+  .t { font-size: 16.5px; font-weight: 500; flex: 1; line-height: 1.7; }
+  .row:hover .t { color: var(--accent); }
+</style>

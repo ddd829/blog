@@ -39,7 +39,7 @@ const jsonLd = blogPostingLd(post);
         <div class="meta meta-ui">
           <span>{formatCnDate(d)}</span><span class="sep">·</span><span>{rt.minutes} 分钟</span>
           {post.data.tags.map((t) => (
-            <a class="chip" href={`/tags/${encodeURIComponent(t)}/`}>{t}</a>
+            <a class="chip" href={`/tags/${t}/`}>{t}</a>
           ))}
         </div>
       </header>
