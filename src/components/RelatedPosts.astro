@@ -1,0 +1,32 @@
+---
+import { SECTIONS } from '../config';
+import type { Post } from '../lib/posts';
+interface Props { posts: Post[] }
+const { posts } = Astro.props;
+---
+{posts.length > 0 && (
+  <section class="related">
+    <div class="kicker">相关文章</div>
+    <div class="list">
+      {posts.map((p) => (
+        <a class="item" href={`/${p.id}/`}>
+          <span class="sec meta-ui">{SECTIONS[p.section].name}</span>
+          <span class="t">{p.data.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .related { margin-top: 56px; }
+  .list { margin-top: 18px; border-top: 1px solid var(--hair); }
+  .item {
+    display: flex; gap: 22px; align-items: baseline;
+    padding: 16px 0; border-bottom: 1px solid var(--hair);
+    text-decoration: none;
+  }
+  .sec { letter-spacing: 0.12em; flex-shrink: 0; }
+  .t { font-size: 15.5px; font-weight: 600; line-height: 1.7; }
+  .item:hover .t { color: var(--accent); }
+</style>

@@ -1,0 +1,27 @@
+---
+import type { Post } from '../lib/posts';
+interface Props { prev?: Post | undefined; next?: Post | undefined }
+const { prev, next } = Astro.props;
+---
+{(prev || next) && (
+  <nav class="footnav" aria-label="相邻文章">
+    <div class="cell">
+      {prev && (<><span class="dir meta-ui">← 较早</span><a href={`/${prev.id}/`}>{prev.data.title}</a></>)}
+    </div>
+    <div class="cell right">
+      {next && (<><span class="dir meta-ui">较新 →</span><a href={`/${next.id}/`}>{next.data.title}</a></>)}
+    </div>
+  </nav>
+)}
+
+<style>
+  .footnav {
+    display: flex; justify-content: space-between; gap: 32px;
+    border-top: 1px solid var(--hair); margin-top: 56px; padding-top: 30px;
+  }
+  .cell { display: flex; flex-direction: column; gap: 8px; max-width: 46%; }
+  .cell.right { text-align: right; margin-left: auto; }
+  .dir { letter-spacing: 0.1em; }
+  .cell a { font-size: 15px; font-weight: 600; text-decoration: none; line-height: 1.7; }
+  .cell a:hover { color: var(--accent); }
+</style>

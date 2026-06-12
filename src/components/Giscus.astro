@@ -1,0 +1,53 @@
+---
+import { GISCUS } from '../config';
+const configured = Boolean(GISCUS.repoId && GISCUS.categoryId);
+---
+<section class="comments">
+  <div class="kicker">讨论</div>
+  {configured ? (
+    <div id="giscus-container" data-giscus></div>
+  ) : (
+    <p class="placeholder meta-ui">
+      评论尚未启用 —— 在 GitHub 仓库开启 Discussions，于 giscus.app 生成配置，填入 src/config.ts 的 GISCUS 即可。
+    </p>
+  )}
+</section>
+
+{configured && (
+  <script is:inline define:vars={{ GISCUS }}>
+    const container = document.querySelector('[data-giscus]');
+    const themeOf = () => (document.documentElement.dataset.theme === 'dark' ? 'dark_dimmed' : 'light');
+    const s = document.createElement('script');
+    const attrs = {
+      'data-repo': GISCUS.repo,
+      'data-repo-id': GISCUS.repoId,
+      'data-category': GISCUS.category,
+      'data-category-id': GISCUS.categoryId,
+      'data-mapping': 'pathname',
+      'data-strict': '1',
+      'data-reactions-enabled': '1',
+      'data-emit-metadata': '0',
+      'data-input-position': 'top',
+      'data-lang': 'zh-CN',
+      'data-loading': 'lazy',
+      'data-theme': themeOf(),
+    };
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
+    s.src = 'https://giscus.app/client.js';
+    s.crossOrigin = 'anonymous';
+    s.async = true;
+    container.appendChild(s);
+    addEventListener('themechange', () => {
+      document.querySelector('iframe.giscus-frame')?.contentWindow?.postMessage(
+        { giscus: { setConfig: { theme: themeOf() } } },
+        'https://giscus.app'
+      );
+    });
+  </script>
+)}
+
+<style>
+  .comments { margin-top: 64px; border-top: 1px solid var(--hair); padding-top: 32px; }
+  .comments :global(.giscus) { margin-top: 20px; }
+  .placeholder { margin-top: 16px; line-height: 1.9; }
+</style>
