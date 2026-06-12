@@ -1,2 +1,100 @@
 ---
 ---
+<div class="search-overlay" data-search hidden>
+  <div class="backdrop" data-search-close></div>
+  <div class="panel">
+    <div class="bar">
+      <input type="search" placeholder="搜索文章…  （Esc 关闭）" data-search-input autocomplete="off" />
+    </div>
+    <div class="results" data-search-results>
+      <p class="hint meta-ui">输入关键词开始搜索。构建后索引才可用（dev 模式下请先 npm run build && npm run preview）。</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .search-overlay { position: fixed; inset: 0; z-index: 100; }
+  .search-overlay[hidden] { display: none; }
+  .backdrop { position: absolute; inset: 0; background: color-mix(in srgb, var(--ink) 32%, transparent); backdrop-filter: blur(3px); }
+  .panel {
+    position: relative; max-width: 640px; margin: 11vh auto 0;
+    background: var(--bg-plain); border: 1px solid var(--hair);
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 24px 80px rgb(0 0 0 / 0.25);
+  }
+  .bar { border-bottom: 1px solid var(--hair); }
+  .bar input {
+    width: 100%; border: 0; outline: 0; background: transparent;
+    padding: 18px 22px; font-family: var(--font-serif);
+    font-size: 17px; color: var(--ink);
+  }
+  .results { max-height: 56vh; overflow-y: auto; padding: 14px 22px 20px; }
+  .hint { line-height: 1.9; }
+  .results :global(.result) { display: block; padding: 13px 0; border-bottom: 1px solid var(--hair-2); text-decoration: none; }
+  .results :global(.result .t) { font-size: 15.5px; font-weight: 600; color: var(--ink); }
+  .results :global(.result:hover .t) { color: var(--accent); }
+  .results :global(.result .x) { font-family: var(--font-ui); font-size: 13px; color: var(--dim); line-height: 1.8; margin-top: 4px; }
+  .results :global(.result .x mark) { background: transparent; color: var(--accent); font-weight: 600; }
+</style>
+
+<script>
+  const overlay = document.querySelector('[data-search]') as HTMLElement;
+  const input = overlay.querySelector('[data-search-input]') as HTMLInputElement;
+  const results = overlay.querySelector('[data-search-results]') as HTMLElement;
+  let pagefind: { debouncedSearch: (q: string) => Promise<{ results: PfResult[] } | null> } | null = null;
+  let loadFailed = false;
+
+  interface PfResult { data: () => Promise<{ url: string; meta: { title?: string }; excerpt: string }> }
+
+  async function ensurePagefind() {
+    if (pagefind || loadFailed) return;
+    try {
+      const url = '/pagefind/pagefind.js';
+      pagefind = await import(/* @vite-ignore */ url);
+    } catch {
+      loadFailed = true;
+      results.innerHTML = '<p class="hint meta-ui">搜索索引不可用 —— 仅在构建产物中存在（npm run build && npm run preview）。</p>';
+    }
+  }
+
+  function open() {
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    input.focus();
+    ensurePagefind();
+  }
+  function close() {
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  addEventListener('open-search', open);
+  overlay.querySelector('[data-search-close]')!.addEventListener('click', close);
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !overlay.hidden) close();
+    if (e.key === '/' && overlay.hidden && !/^(input|textarea)$/i.test((e.target as HTMLElement).tagName)) {
+      e.preventDefault();
+      open();
+    }
+  });
+
+  let timer: number;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const q = input.value.trim();
+      if (!q || !pagefind) return;
+      const res = await pagefind.debouncedSearch(q);
+      if (!res) return;
+      const items = await Promise.all(res.results.slice(0, 12).map((r) => r.data()));
+      results.innerHTML = items.length
+        ? items
+            .map(
+              (d) =>
+                `<a class="result" href="${d.url}"><div class="t">${d.meta.title ?? d.url}</div><div class="x">${d.excerpt}</div></a>`
+            )
+            .join('')
+        : '<p class="hint meta-ui">没有找到相关内容。</p>';
+    }, 220) as unknown as number;
+  });
+</script>
