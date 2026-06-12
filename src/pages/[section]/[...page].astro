@@ -1,8 +1,8 @@
 ---
-import type { GetStaticPaths } from 'astro';
+import type { GetStaticPaths, Page } from 'astro';
 import Base from '../../layouts/Base.astro';
 import PostIndex from '../../components/PostIndex.astro';
-import { getPosts } from '../../lib/posts';
+import { getPosts, type Post } from '../../lib/posts';
 import { SECTIONS, type SectionKey } from '../../config';
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -14,18 +14,19 @@ export const getStaticPaths = (async ({ paginate }) => {
     const pages = paginate(posts, { params: { section }, pageSize: 20, props: { all } });
     // If the section is empty, paginate([]) may return no paths — emit a fallback page
     if (pages.length === 0) {
+      const emptyPage: Page<Post> = {
+        data: [],
+        start: 0,
+        end: 0,
+        size: 20,
+        total: 0,
+        currentPage: 1,
+        lastPage: 1,
+        url: { prev: undefined, next: undefined, current: `/${section}/`, first: undefined, last: undefined },
+      };
       return [{
         params: { section, page: undefined },
-        props: {
-          page: {
-            data: [],
-            total: 0,
-            currentPage: 1,
-            lastPage: 1,
-            url: { prev: undefined, next: undefined },
-          },
-          all,
-        },
+        props: { page: emptyPage, all },
       }];
     }
     return pages;

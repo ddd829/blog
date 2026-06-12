@@ -45,7 +45,7 @@ const og = ogImage ?? new URL('/og-default.png', SITE.url).href;
     <meta property="og:type" content="website" />
     <meta property="og:image" content={og} />
     <meta name="twitter:card" content="summary_large_image" />
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <script is:inline>
       const saved = localStorage.getItem('theme');
       const theme = saved ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
