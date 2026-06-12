@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="页面不存在">
+  <main class="container wrap">
+    <div class="kicker">404</div>
+    <h1 class="name">这一页不在刊物里</h1>
+    <p class="meta-ui">它可能被移走了，或从未存在。<a href="/">返回首页 →</a></p>
+  </main>
+</Base>
+
+<style>
+  .wrap { padding: 120px 48px 80px; text-align: center; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 18px 0; }
+  .wrap a { color: var(--dim); }
+  .wrap a:hover { color: var(--accent); }
+</style>

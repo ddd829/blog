@@ -1,0 +1,18 @@
+---
+import Base from './Base.astro';
+import '../styles/prose.css';
+import '../styles/prose-essay.css';
+interface Props { frontmatter: { title: string; description?: string } }
+const { frontmatter } = Astro.props;
+---
+<Base title={frontmatter.title} description={frontmatter.description}>
+  <main class="container page">
+    <h1 class="name">{frontmatter.title}</h1>
+    <article class="prose prose-essay"><slot /></article>
+  </main>
+</Base>
+
+<style>
+  .page { max-width: calc(var(--w-essay) + 96px); padding-top: 64px; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 16px; }
+</style>

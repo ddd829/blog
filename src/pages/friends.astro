@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import { FRIENDS } from '../data/friends';
+---
+<Base title="友链" description="友情链接">
+  <main class="container">
+    <header class="head">
+      <h1 class="name">友链</h1>
+      <p class="meta-ui">交换友链请致信 <a href="mailto:comments@dingfanx.com">comments@dingfanx.com</a></p>
+    </header>
+    {FRIENDS.length ? (
+      <div class="grid">
+        {FRIENDS.map((f) => (
+          <a class="card" href={f.url} rel="noopener">
+            <span class="n">{f.name}</span>
+            <span class="d">{f.desc}</span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="empty meta-ui">虚位以待。</p>
+    )}
+  </main>
+</Base>
+
+<style>
+  .head { padding: 64px 0 40px; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 12px; }
+  .head a { color: var(--dim); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    display: flex; flex-direction: column; gap: 8px;
+    border: 1px solid var(--hair); border-radius: 10px;
+    padding: 20px 22px; text-decoration: none;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .n { font-size: 17px; font-weight: 600; }
+  .d { font-family: var(--font-ui); font-size: 13px; color: var(--dim); line-height: 1.8; }
+  .empty { padding: 8px 0 48px; }
+</style>
