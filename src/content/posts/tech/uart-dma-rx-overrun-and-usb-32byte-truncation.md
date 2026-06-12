@@ -1,5 +1,5 @@
 ---
-title: uart-dma-rx-overrun-and-usb-32byte-truncation
+title: UART DMA 首字节丢失与 USB 32 字节截断排查
 date: 2026-05-31T00:00:00.000Z
 updated: 2026-05-31T00:00:00.000Z
 tags:
