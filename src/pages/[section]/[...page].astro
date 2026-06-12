@@ -1,0 +1,64 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import PostIndex from '../../components/PostIndex.astro';
+import { getPosts } from '../../lib/posts';
+import { SECTIONS, type SectionKey } from '../../config';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const all = await getPosts();
+  return Object.keys(SECTIONS).flatMap((section) => {
+    const posts = all
+      .filter((p) => p.section === section)
+      .sort((a, b) => Number(b.data.pinned) - Number(a.data.pinned) || b.data.date.getTime() - a.data.date.getTime());
+    const pages = paginate(posts, { params: { section }, pageSize: 20, props: { all } });
+    // If the section is empty, paginate([]) may return no paths — emit a fallback page
+    if (pages.length === 0) {
+      return [{
+        params: { section, page: undefined },
+        props: {
+          page: {
+            data: [],
+            total: 0,
+            currentPage: 1,
+            lastPage: 1,
+            url: { prev: undefined, next: undefined },
+          },
+          all,
+        },
+      }];
+    }
+    return pages;
+  });
+}) satisfies GetStaticPaths;
+
+const { page, all } = Astro.props;
+const section = Astro.params.section as SectionKey;
+const info = SECTIONS[section];
+const surface = info.mode === 'tech' ? 'plain' : 'paper';
+---
+<Base title={info.name} description={info.desc} surface={surface}>
+  <main class="container">
+    <header class="head">
+      <h1 class="name">{info.name}</h1>
+      <p class="desc meta-ui">{info.desc} · 共 {page.total} 篇</p>
+    </header>
+    <PostIndex posts={page.data} all={all} showSection={false} />
+    {(page.url.prev || page.url.next) && (
+      <nav class="pager meta-ui" aria-label="分页">
+        {page.url.prev ? <a href={page.url.prev}>← 较新</a> : <span />}
+        <span>{page.currentPage} / {page.lastPage}</span>
+        {page.url.next ? <a href={page.url.next}>较早 →</a> : <span />}
+      </nav>
+    )}
+  </main>
+</Base>
+
+<style>
+  .head { padding: 64px 0 40px; }
+  .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0; }
+  .desc { margin: 12px 0 0; letter-spacing: 0.08em; }
+  .pager { display: flex; justify-content: space-between; padding: 26px 0; }
+  .pager a { text-decoration: none; }
+  .pager a:hover { color: var(--accent); }
+</style>
