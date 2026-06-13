@@ -14,29 +14,39 @@ const configured = Boolean(GISCUS.repoId && GISCUS.categoryId);
 </section>
 
 {configured && (
-  <script is:inline define:vars={{ GISCUS }}>
-    const container = document.querySelector('[data-giscus]');
+  <script define:vars={{ GISCUS }}>
     const themeOf = () => (document.documentElement.dataset.theme === 'dark' ? 'dark_dimmed' : 'light');
-    const s = document.createElement('script');
-    const attrs = {
-      'data-repo': GISCUS.repo,
-      'data-repo-id': GISCUS.repoId,
-      'data-category': GISCUS.category,
-      'data-category-id': GISCUS.categoryId,
-      'data-mapping': 'pathname',
-      'data-strict': '1',
-      'data-reactions-enabled': '1',
-      'data-emit-metadata': '0',
-      'data-input-position': 'top',
-      'data-lang': 'zh-CN',
-      'data-loading': 'lazy',
-      'data-theme': themeOf(),
-    };
-    for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
-    s.src = 'https://giscus.app/client.js';
-    s.crossOrigin = 'anonymous';
-    s.async = true;
-    container.appendChild(s);
+
+    // 每次视图转场后为当前文章重新加载评论（覆盖层切页问题已规避）
+    function loadGiscus() {
+      const container = document.querySelector('[data-giscus]');
+      if (!container || container.firstChild) return; // 容器不存在或已加载则跳过
+      const s = document.createElement('script');
+      const attrs = {
+        'data-repo': GISCUS.repo,
+        'data-repo-id': GISCUS.repoId,
+        'data-category': GISCUS.category,
+        'data-category-id': GISCUS.categoryId,
+        'data-mapping': 'pathname',
+        'data-strict': '1',
+        'data-reactions-enabled': '1',
+        'data-emit-metadata': '0',
+        'data-input-position': 'top',
+        'data-lang': 'zh-CN',
+        'data-loading': 'lazy',
+        'data-theme': themeOf(),
+      };
+      for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
+      s.src = 'https://giscus.app/client.js';
+      s.crossOrigin = 'anonymous';
+      s.async = true;
+      container.appendChild(s);
+    }
+
+    loadGiscus();
+    document.addEventListener('astro:page-load', loadGiscus);
+
+    // 深浅色切换时同步 giscus 主题
     addEventListener('themechange', () => {
       document.querySelector('iframe.giscus-frame')?.contentWindow?.postMessage(
         { giscus: { setConfig: { theme: themeOf() } } },
