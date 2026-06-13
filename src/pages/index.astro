@@ -19,6 +19,26 @@ const stars = posts.map((post, i) => {
   const size = i === 0 ? 34 : Math.round(20 + r() * 13);
   return { post, size };
 });
+
+// 背景星图：淡雅星点 + 几条极淡星座连线（静态纯装饰，呼应“文章星图”）
+const FW = 1000;
+const FH = 560;
+const rf = makeRng(99);
+const dots = Array.from({ length: 72 }, () => ({
+  x: +(rf() * FW).toFixed(1),
+  y: +(rf() * FH).toFixed(1),
+  r: +(0.8 + rf() * 1.5).toFixed(2),
+  op: +(0.16 + rf() * 0.3).toFixed(2),
+}));
+const nodes = Array.from({ length: 7 }, () => ({
+  x: +(90 + rf() * (FW - 180)).toFixed(1),
+  y: +(60 + rf() * (FH - 120)).toFixed(1),
+  r: +(1.8 + rf() * 1.3).toFixed(2),
+}));
+const lines = [
+  [0, 1, 2, 3],
+  [3, 4, 5, 6],
+].map((idx) => idx.map((k) => `${nodes[k].x},${nodes[k].y}`).join(' '));
 ---
 <Base>
   <main class="container home">
@@ -29,6 +49,11 @@ const stars = posts.map((post, i) => {
 
     <!-- 漂浮标题星图（宽屏 + 允许动效时由 JS 启用；漂浮由 CSS 合成器动画完成） -->
     <div class="stage" data-stage>
+      <svg class="starfield" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="none" aria-hidden="true">
+        {lines.map((pts) => <polyline class="cline" points={pts} />)}
+        {dots.map((d) => <circle cx={d.x} cy={d.y} r={d.r} opacity={d.op} />)}
+        {nodes.map((n) => <circle class="node" cx={n.x} cy={n.y} r={n.r} />)}
+      </svg>
       {stars.map((s) => (
         <a class="star" href={`/${s.post.id}/`} style={`font-size:${s.size}px`}>
           <span class="star-label">{s.post.data.title}</span>
@@ -75,7 +100,17 @@ const stars = posts.map((post, i) => {
   .home.constellation-on .stage { display: block; }
   .home.constellation-on .fallback { display: none; }
 
+  /* 背景星图 */
+  .starfield {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    color: var(--faint); pointer-events: none; z-index: 0;
+  }
+  .starfield circle { fill: currentColor; }
+  .starfield .node { opacity: 0.5; }
+  .starfield .cline { fill: none; stroke: currentColor; stroke-width: 0.6; opacity: 0.14; }
+
   .star {
+    z-index: 1;
     position: absolute; left: 0; top: 0;
     max-width: 14em; text-align: center; text-decoration: none;
   }
