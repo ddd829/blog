@@ -60,8 +60,11 @@ const jsonLdHtml = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : nu
       window.__applyTheme();
       if (!window.__themeBound) {
         window.__themeBound = true;
-        // 视图转场后重新套用主题，避免闪烁
-        document.addEventListener('astro:after-swap', () => window.__applyTheme());
+        // 视图转场后重新套用主题（避免闪烁），并回到页首
+        document.addEventListener('astro:after-swap', () => {
+          window.__applyTheme();
+          if (!location.hash) window.scrollTo({ top: 0, left: 0 });
+        });
       }
     </script>
   </head>

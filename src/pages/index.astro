@@ -6,58 +6,85 @@ import { formatCnDate } from '../lib/format-date';
 
 const all = await getPosts();
 const posts = all.slice(0, 12);
+const sections = Object.entries(SECTIONS);
 ---
 <Base>
-  <main class="container">
-    <header class="intro">
-      <p class="epigraph">Homo sum, humani nihil a me alienum puto.</p>
-      <div class="attrib">— Terence</div>
-    </header>
+  <main class="container home">
+    <div class="col-main">
+      <header class="intro">
+        <p class="epigraph">Homo sum, humani nihil a me alienum puto.</p>
+        <div class="attrib">— Terence</div>
+      </header>
 
-    <section class="latest">
-      <div class="label">最新文章</div>
-      <div class="feed">
-        {posts.map((post) => (
-          <a class="entry" href={`/${post.id}/`}>
-            <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
-            <h2 class="title">{post.data.title}</h2>
-            {post.data.summary && <p class="summary">{post.data.summary}</p>}
+      <section class="latest">
+        <div class="label">最新文章</div>
+        <div class="feed">
+          {posts.map((post) => (
+            <a class="entry" href={`/${post.id}/`}>
+              <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
+              <h2 class="title">{post.data.title}</h2>
+              {post.data.summary && <p class="summary">{post.data.summary}</p>}
+            </a>
+          ))}
+        </div>
+        <a class="more" href="/archives/">全部文章 →</a>
+      </section>
+    </div>
+
+    <aside class="rail">
+      <div class="block colophon">
+        <div class="cname">Dingfan&nbsp;X<span class="dot">.</span></div>
+        <p class="cdesc">这里记录技术学习、财经思考与中外文学，一份持续生长的个人刊物。</p>
+      </div>
+      <nav class="block guide" aria-label="栏目导览">
+        <div class="bh">栏目</div>
+        {sections.map(([key, s]) => (
+          <a class="grow" href={`/${key}/`}>
+            <span class="gn">{s.name}</span>
+            <span class="gd">{s.desc}</span>
           </a>
         ))}
-      </div>
-      <a class="more" href="/archives/">全部文章 →</a>
-    </section>
+      </nav>
+      <nav class="block links" aria-label="更多">
+        <a href="/archives/">归档</a>
+        <a href="/tags/">标签</a>
+        <a href="/about/">关于</a>
+        <a href="/rss.xml">RSS</a>
+      </nav>
+    </aside>
   </main>
 </Base>
 
 <style>
+  .home {
+    display: grid; grid-template-columns: minmax(0, 1fr) 256px;
+    gap: 72px; align-items: start; padding-top: 88px;
+  }
+
   /* 题词 */
-  .intro { max-width: 760px; padding: 88px 0 0; }
+  .intro { max-width: 560px; }
   .epigraph {
     font-family: var(--font-display); font-style: italic; font-weight: 400;
-    font-size: clamp(27px, 3.7vw, 39px); line-height: 1.38; color: var(--ink);
-    margin: 0; max-width: 15em;
+    font-size: clamp(26px, 3.4vw, 37px); line-height: 1.4; color: var(--ink); margin: 0;
   }
   .attrib {
-    font-family: var(--font-ui); font-size: 13px; letter-spacing: 0.12em;
-    color: var(--faint); margin-top: 20px;
+    text-align: right; font-family: var(--font-ui); font-size: 13px;
+    letter-spacing: 0.12em; color: var(--faint); margin-top: 18px;
   }
 
   /* 最新文章 */
-  .latest { max-width: 720px; margin-top: 68px; }
+  .latest { margin-top: 64px; }
   .label {
     font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.16em;
     color: var(--faint); padding-bottom: 14px; border-bottom: 1px solid var(--ink);
   }
-
   .entry {
     display: block; text-decoration: none;
     padding: 30px 0; border-top: 1px solid var(--hair);
   }
   .feed .entry:first-child { border-top: 0; }
   .meta {
-    font-family: var(--font-ui); font-size: 12.5px; letter-spacing: 0.06em;
-    color: var(--faint);
+    font-family: var(--font-ui); font-size: 12.5px; letter-spacing: 0.06em; color: var(--faint);
   }
   .title {
     font-family: var(--font-serif); font-weight: 600; font-size: 21px;
@@ -68,7 +95,6 @@ const posts = all.slice(0, 12);
     line-height: 1.9; margin: 10px 0 0; max-width: 40em;
   }
   .entry:hover .title { color: var(--accent); }
-
   .more {
     display: inline-block; margin-top: 32px;
     font-family: var(--font-ui); font-size: 13px; letter-spacing: 0.08em;
@@ -76,8 +102,36 @@ const posts = all.slice(0, 12);
   }
   .more:hover { color: var(--accent); }
 
-  @media (max-width: 720px) {
-    .intro { padding-top: 52px; }
-    .latest { margin-top: 48px; }
+  /* 右栏：刊物前页 */
+  .rail { position: sticky; top: 96px; }
+  .block { padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--hair); }
+  .block:last-child { border-bottom: 0; }
+  .cname { font-family: var(--font-wordmark); font-size: 19px; }
+  .dot { color: var(--accent); }
+  .cdesc {
+    font-family: var(--font-ui); font-size: 12.5px; line-height: 1.95;
+    color: var(--dim); margin: 12px 0 0;
+  }
+  .bh {
+    font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.18em;
+    color: var(--faint); margin-bottom: 6px;
+  }
+  .grow { display: block; text-decoration: none; padding: 9px 0; border-bottom: 1px solid var(--hair-2); }
+  .grow:last-child { border-bottom: 0; }
+  .gn { font-family: var(--font-serif); font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .gd {
+    display: block; font-family: var(--font-ui); font-size: 11.5px;
+    color: var(--faint); line-height: 1.7; margin-top: 3px;
+  }
+  .grow:hover .gn { color: var(--accent); }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+  .links a {
+    font-family: var(--font-ui); font-size: 12.5px; color: var(--dim); text-decoration: none;
+  }
+  .links a:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .home { grid-template-columns: 1fr; gap: 0; padding-top: 52px; }
+    .rail { position: static; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--ink); }
   }
 </style>
