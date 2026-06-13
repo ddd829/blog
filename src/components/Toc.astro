@@ -37,6 +37,20 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
     const toc = document.querySelector('[data-toc]');
     if (!toc) return;
     const links = [...toc.querySelectorAll('.toc-item')] as HTMLElement[];
+
+    // 点击章节平滑滚动，但用 replaceState 避免在浏览器历史里堆叠锚点
+    // （否则「后退」会退回上一处滚动位置而非上一页）
+    links.forEach((l) => {
+      l.addEventListener('click', (e) => {
+        const id = l.dataset.target;
+        const el = id ? document.getElementById(id) : null;
+        if (!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ behavior: 'smooth' });
+        history.replaceState(history.state, '', `#${id}`);
+      });
+    });
+
     const targets = links
       .map((l) => document.getElementById(l.dataset.target!))
       .filter(Boolean) as HTMLElement[];

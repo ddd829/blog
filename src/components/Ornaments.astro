@@ -1,0 +1,90 @@
+---
+// 印刷花饰彩蛋：点击处升起小装饰符 + 隐藏 Konami 花饰雨
+// 与「刊物 / Atelier」气质契合；尊重 prefers-reduced-motion
+---
+<script>
+  const GLYPHS = ['❦', '❧', '✦', '✶', '⁂', '※', '¶', '❡'];
+
+  function spawn(x: number, y: number) {
+    const el = document.createElement('span');
+    el.className = 'fleuron';
+    el.textContent = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.setProperty('--dx', `${(Math.random() * 40 - 20) | 0}px`);
+    el.style.setProperty('--rot', `${(Math.random() * 44 - 22) | 0}deg`);
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+
+  function toast(msg: string) {
+    const el = document.createElement('div');
+    el.className = 'fleuron-toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  }
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduce && !(window as any).__fleuronBound) {
+    (window as any).__fleuronBound = true;
+
+    // 到处点击的小印记（跳过交互元素与文本选择，避免干扰）
+    document.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('a, button, input, textarea, select, label, summary, [role="button"]')) return;
+      if (document.querySelector('[data-search]:not([hidden])')) return;
+      if ((getSelection()?.toString().length ?? 0) > 0) return;
+      spawn(e.clientX, e.clientY);
+    });
+
+    // 隐藏彩蛋：↑↑↓↓←→←→ B A → 一阵花饰雨
+    const seq = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let pos = 0;
+    document.addEventListener('keydown', (e) => {
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      pos = k === seq[pos] ? pos + 1 : k === seq[0] ? 1 : 0;
+      if (pos === seq.length) {
+        pos = 0;
+        for (let i = 0; i < 28; i++) {
+          setTimeout(() => spawn(Math.random() * innerWidth, -20), i * 70);
+        }
+        toast('❦ 印记已解锁');
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  .fleuron {
+    position: fixed; z-index: 200; pointer-events: none;
+    font-family: var(--font-display, serif); font-size: 20px;
+    color: var(--accent); transform: translate(-50%, -50%);
+    animation: fleuron-rise 1.1s ease-out forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes fleuron-rise {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotate(0deg); }
+    18% { opacity: 0.85; }
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 56px)) scale(1) rotate(var(--rot, 0deg));
+    }
+  }
+  .fleuron-toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%);
+    z-index: 201; pointer-events: none;
+    font-family: var(--font-ui, sans-serif); font-size: 13px; letter-spacing: 0.14em;
+    color: var(--bg); background: var(--ink);
+    padding: 9px 18px; border-radius: 99px;
+    animation: fleuron-toast 2.6s ease forwards;
+  }
+  @keyframes fleuron-toast {
+    0%, 100% { opacity: 0; transform: translate(-50%, 8px); }
+    12%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fleuron, .fleuron-toast { display: none; }
+  }
+</style>
