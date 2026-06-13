@@ -3,7 +3,9 @@
 // 与「刊物 / Atelier」气质契合；尊重 prefers-reduced-motion
 ---
 <script>
-  const GLYPHS = ['❦', '❧', '✦', '✶', '⁂', '※', '¶', '❡'];
+  // 乐谱记号：四分/八分/十六分音符 + 降/还原/升记号
+  // 全部位于 U+2669–U+266F，所有平台系统字体内置，渲染稳定
+  const GLYPHS = ['♩', '♪', '♫', '♬', '♭', '♮', '♯'];
 
   function spawn(x: number, y: number) {
     const el = document.createElement('span');
@@ -50,7 +52,7 @@
         for (let i = 0; i < 28; i++) {
           setTimeout(() => spawn(Math.random() * innerWidth, -20), i * 70);
         }
-        toast('❦ 印记已解锁');
+        toast('♫ 旋律已解锁');
       }
     });
   }
