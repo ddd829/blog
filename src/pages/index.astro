@@ -77,10 +77,18 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
           </g>
         ))}
       </svg>
+      <div class="meteors">
+        <div class="meteor" style="top:13%;left:5%;--ang:19deg;--dur:24s;--delay:-4s"><i></i></div>
+        <div class="meteor" style="top:30%;left:44%;--ang:13deg;--dur:33s;--delay:-15s"><i></i></div>
+        <div class="meteor" style="top:9%;left:63%;--ang:26deg;--dur:41s;--delay:-27s"><i></i></div>
+      </div>
     </div>
 
     <header class="intro">
-      <p class="epigraph"><span class="oq">“</span>Der bestirnte Himmel über mir<br />und das moralische Gesetz in mir.</p>
+      <p class="epigraph">
+        <span class="l1"><span class="oq">“</span>Der bestirnte Himmel über mir</span>
+        <span class="l2">und das moralische Gesetz in mir.</span>
+      </p>
       <div class="attrib"><span class="rule"></span>Immanuel Kant</div>
     </header>
 
@@ -120,6 +128,8 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
     margin: 0; letter-spacing: 0.004em;
   }
   .oq { color: var(--accent); font-size: 1.35em; line-height: 0; vertical-align: -0.2em; margin-right: 0.02em; }
+  .epigraph .l1, .epigraph .l2 { display: block; }
+  .epigraph .l2 { margin-left: 2.4em; }
   .attrib {
     display: flex; align-items: center; justify-content: flex-end; gap: 12px;
     font-family: var(--font-display); font-style: italic; font-weight: 500;
@@ -158,6 +168,23 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
   .starfield circle { opacity: var(--o, 0.4); }
   .starfield.near circle { filter: drop-shadow(0 0 1.6px rgba(220, 230, 255, 0.7)); }
   .spike line { stroke: rgba(226, 236, 255, 0.42); stroke-width: 0.35; }
+
+  /* 流星：偶尔划过的光痕 */
+  .meteors { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .meteor { position: absolute; transform: rotate(var(--ang, 20deg)); }
+  .meteor i {
+    display: block; width: 160px; height: 1.6px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(232, 240, 255, 0.95));
+    filter: drop-shadow(0 0 3px rgba(210, 228, 255, 0.55));
+    opacity: 0;
+    animation: shoot var(--dur, 28s) linear var(--delay, 0s) infinite;
+  }
+  @keyframes shoot {
+    0%, 2% { opacity: 0; transform: translateX(-180px); }
+    3.5% { opacity: 1; }
+    9% { opacity: 1; transform: translateX(74vw); }
+    11%, 100% { opacity: 0; transform: translateX(82vw); }
+  }
   .twinkle {
     animation-name: twinkle; animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
@@ -177,6 +204,7 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
   @media (prefers-reduced-motion: reduce) {
     .starfield { animation: none; }
     .twinkle { animation: none; }
+    .meteor i { animation: none; }
   }
 
   .star {
@@ -221,7 +249,7 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
   /* 手机：题词允许换行，避免溢出 */
   @media (max-width: 860px) {
     .intro { width: auto; max-width: 560px; padding-top: 52px; }
-    .epigraph { white-space: normal; }
+    .epigraph .l2 { margin-left: 1.2em; }
   }
 </style>
 
