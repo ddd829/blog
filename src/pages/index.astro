@@ -7,7 +7,6 @@ import { formatCnDate } from '../lib/format-date';
 const all = await getPosts();
 const posts = all.slice(0, 24);
 
-// 仅在服务端决定字号分层（做出星图纵深）；位置与运动由客户端物理接管
 function makeRng(seed: number) {
   let s = (seed * 9301 + 49297) % 233280;
   return () => {
@@ -23,50 +22,52 @@ const stars = posts.map((post, i) => {
 ---
 <Base>
   <main class="container home">
-    <header class="intro">
-      <p class="epigraph"><span class="oq">“</span>Homo sum, humani nihil a me alienum puto.</p>
-      <div class="attrib"><span class="rule"></span>Terence</div>
-    </header>
+    <div class="canvas">
+      <header class="intro">
+        <p class="epigraph"><span class="oq">“</span>Homo sum, humani nihil a me alienum puto.</p>
+        <div class="attrib"><span class="rule"></span>Terence</div>
+      </header>
 
-    <!-- 漂浮标题星图（宽屏 + 允许动效时由 JS 启用） -->
-    <div class="stage" data-stage aria-label="文章星图">
-      {stars.map((s) => (
-        <a class="star" href={`/${s.post.id}/`} style={`font-size:${s.size}px`}>
-          <span class="star-label">{s.post.data.title}</span>
-        </a>
-      ))}
-    </div>
-
-    <!-- 默认 / 手机 / 减动效 / 无 JS：整洁列表 -->
-    <section class="fallback">
-      <div class="label">最新文章</div>
-      <div class="feed">
-        {posts.map((post) => (
-          <a class="entry" href={`/${post.id}/`}>
-            <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
-            <h2 class="title">{post.data.title}</h2>
-            {post.data.summary && <p class="summary">{post.data.summary}</p>}
+      <!-- 漂浮标题星图（宽屏 + 允许动效时由 JS 启用，题词作为固定障碍） -->
+      <div class="stage" data-stage aria-hidden="false">
+        {stars.map((s) => (
+          <a class="star" href={`/${s.post.id}/`} style={`font-size:${s.size}px`}>
+            <span class="star-label">{s.post.data.title}</span>
           </a>
         ))}
       </div>
-    </section>
+
+      <!-- 默认 / 手机 / 减动效 / 无 JS：整洁列表 -->
+      <section class="fallback">
+        <div class="label">最新文章</div>
+        <div class="feed">
+          {posts.map((post) => (
+            <a class="entry" href={`/${post.id}/`}>
+              <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
+              <h2 class="title">{post.data.title}</h2>
+              {post.data.summary && <p class="summary">{post.data.summary}</p>}
+            </a>
+          ))}
+        </div>
+      </section>
+    </div>
 
     <a class="more" href="/archives/">全部文章 →</a>
   </main>
 </Base>
 
 <style>
-  /* 题词 */
-  .intro { max-width: 640px; padding-top: 80px; }
+  .canvas { position: relative; }
+  .home.constellation-on .canvas { min-height: 80vh; }
+
+  /* 题词（始终可见；星图模式下作为障碍物，标题绕其漂浮） */
+  .intro { position: relative; z-index: 3; max-width: 560px; padding-top: 80px; pointer-events: none; }
   .epigraph {
     font-family: var(--font-display); font-style: italic; font-weight: 400;
     font-size: clamp(31px, 4.6vw, 52px); line-height: 1.22; color: var(--ink);
     margin: 0; letter-spacing: 0.004em;
   }
-  .oq {
-    color: var(--accent); font-size: 1.35em; line-height: 0;
-    vertical-align: -0.2em; margin-right: 0.02em;
-  }
+  .oq { color: var(--accent); font-size: 1.35em; line-height: 0; vertical-align: -0.2em; margin-right: 0.02em; }
   .attrib {
     display: flex; align-items: center; justify-content: flex-end; gap: 12px;
     font-family: var(--font-display); font-style: italic; font-weight: 500;
@@ -74,8 +75,8 @@ const stars = posts.map((post, i) => {
   }
   .attrib .rule { width: 42px; height: 1px; background: var(--accent-soft); }
 
-  /* 星图舞台：默认隐藏，JS 在宽屏 + 允许动效时启用 */
-  .stage { position: relative; min-height: 64vh; margin-top: 36px; display: none; }
+  /* 星图舞台：铺满 canvas，默认隐藏，JS 在宽屏 + 允许动效时启用 */
+  .stage { position: absolute; inset: 0; z-index: 1; display: none; }
   .home.constellation-on .stage { display: block; }
   .home.constellation-on .fallback { display: none; }
 
@@ -89,12 +90,10 @@ const stars = posts.map((post, i) => {
     transition: transform 0.28s ease, color 0.28s ease;
   }
   .star:hover, .star:focus-visible { z-index: 5; outline: none; }
-  .star:hover .star-label, .star:focus-visible .star-label {
-    transform: scale(1.09); color: var(--accent);
-  }
+  .star:hover .star-label, .star:focus-visible .star-label { transform: scale(1.09); color: var(--accent); }
 
   /* 列表（默认可见） */
-  .fallback { display: block; max-width: 720px; }
+  .fallback { position: relative; z-index: 3; display: block; max-width: 720px; }
   .label {
     font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.16em;
     color: var(--faint); padding-bottom: 14px; border-bottom: 1px solid var(--ink);
@@ -125,6 +124,7 @@ const stars = posts.map((post, i) => {
 <script>
   import { place, step, type Box } from '../lib/constellation';
 
+  type Item = Box & { el: HTMLElement | null };
   let raf = 0;
   let onResize: (() => void) | null = null;
 
@@ -141,8 +141,9 @@ const stars = posts.map((post, i) => {
   function start() {
     stop();
     const home = document.querySelector('.home');
-    const stage = document.querySelector('[data-stage]');
-    if (!home || !stage) return;
+    const stage = document.querySelector('[data-stage]') as HTMLElement | null;
+    const intro = document.querySelector('.intro') as HTMLElement | null;
+    if (!home || !stage || !intro) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (innerWidth <= 860) return;
 
@@ -151,21 +152,43 @@ const stars = posts.map((post, i) => {
     if (!els.length) return;
 
     const W = stage.clientWidth;
-    const H = (stage as HTMLElement).clientHeight;
-    const pad = 18;
-    const items = els.map((el) => {
+    const H = stage.clientHeight;
+    const pad = 16;
+
+    // 题词作为固定障碍物（在 stage 坐标系内，外扩一圈留白）
+    const sr = stage.getBoundingClientRect();
+    const ir = intro.getBoundingClientRect();
+    const m = 26;
+    const obstacle: Item = {
+      el: null,
+      w: ir.width + m * 2,
+      h: ir.height + m * 2,
+      x: ir.left - sr.left - m,
+      y: ir.top - sr.top - m,
+      vx: 0,
+      vy: 0,
+    };
+
+    const stItems = els.map((el): Item => {
       const r = el.getBoundingClientRect();
       return { el, w: r.width, h: r.height, x: 0, y: 0, vx: 0, vy: 0 };
     });
-    place(items, W, H, pad);
+    const items: Item[] = [obstacle, ...stItems];
 
-    const frozen = new Set<Box>();
+    const frozen = new Set<Box>([obstacle]);
+    place(items, W, H, pad, frozen);
+
     for (const it of items) {
-      it.el.addEventListener('pointerenter', () => frozen.add(it));
-      it.el.addEventListener('pointerleave', () => frozen.delete(it));
-      it.el.addEventListener('focus', () => frozen.add(it));
-      it.el.addEventListener('blur', () => frozen.delete(it));
-      it.el.style.transform = `translate(${Math.round(it.x)}px, ${Math.round(it.y)}px)`;
+      if (!it.el) continue;
+      const el = it.el;
+      const enter = () => frozen.add(it);
+      const leave = () => frozen.delete(it);
+      el.addEventListener('pointerenter', enter);
+      el.addEventListener('pointerleave', leave);
+      el.addEventListener('focus', enter);
+      el.addEventListener('blur', leave);
+      el.addEventListener('pointerdown', pause); // 点击瞬间即冻结，避免拖慢跳转
+      el.style.transform = `translate(${it.x}px, ${it.y}px)`;
     }
 
     let last = performance.now();
@@ -173,7 +196,7 @@ const stars = posts.map((post, i) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       step(items, W, H, pad, dt, frozen);
-      for (const it of items) it.el.style.transform = `translate(${Math.round(it.x)}px, ${Math.round(it.y)}px)`;
+      for (const it of items) if (it.el) it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -184,6 +207,6 @@ const stars = posts.map((post, i) => {
   }
 
   document.addEventListener('astro:page-load', start);
-  document.addEventListener('astro:before-preparation', pause); // 导航一开始就冻结动画，避免抢占主线程拖慢跳转
+  document.addEventListener('astro:before-preparation', pause);
   document.addEventListener('astro:before-swap', stop);
 </script>

@@ -67,6 +67,22 @@ describe('constellation physics', () => {
     }
   });
 
+  it('avoids a fixed obstacle and stays non-overlapping over time', () => {
+    const items = makeItems(6);
+    // items[0] 作为居中的固定障碍物（如题词）
+    items[0].w = 320;
+    items[0].h = 140;
+    items[0].x = (W - 320) / 2;
+    items[0].y = (H - 140) / 2;
+    const frozen = new Set<Box>([items[0]]);
+    place(items, W, H, pad, frozen);
+    for (let f = 0; f < 900; f++) step(items, W, H, pad, 1 / 60, frozen);
+    expect(anyOverlap(items, 1)).toBe(false);
+    // 障碍物未移动
+    expect(items[0].x).toBe((W - 320) / 2);
+    expect(items[0].y).toBe((H - 140) / 2);
+  });
+
   it('does not move a frozen (hovered) item', () => {
     const items = makeItems(5);
     place(items, W, H, pad);
