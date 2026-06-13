@@ -2,7 +2,7 @@
 title: 样式试验页（全要素）
 date: 2026-06-11
 summary: 验证代码标题、callout、公式、Mermaid、表格、图片与引用的渲染。本文为草稿，不会发布。
-tags: [测试]
+tags: [topic/markdown]
 draft: true
 ---
 

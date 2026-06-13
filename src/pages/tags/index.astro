@@ -1,39 +1,28 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getPosts } from '../../lib/posts';
+import { NAMESPACE_ORDER, namespaceLabel, parseTag } from '../../lib/tags';
 
 const all = await getPosts();
 const counts = new Map<string, number>();
 for (const p of all) for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
 
-// 标签采用 命名空间/值 体系（subject/ topic/ type/ project/ source/），按命名空间分组展示
-const NS_LABELS: Record<string, string> = {
-  subject: 'Subject',
-  topic: 'Topic',
-  type: 'Type',
-  project: 'Project',
-  source: 'Source',
-  '': 'Other',
-};
-const NS_ORDER = ['subject', 'topic', 'type', 'project', 'source', ''];
-
+// 按命名空间（subject/ topic/ type/ project/ series/ source/）分组展示
 type Tag = { tag: string; label: string; n: number };
 const groups = new Map<string, Tag[]>();
 for (const [tag, n] of counts) {
-  const slash = tag.indexOf('/');
-  const ns = slash >= 0 ? tag.slice(0, slash) : '';
-  const label = slash >= 0 ? tag.slice(slash + 1) : tag;
+  const { ns, value } = parseTag(tag);
   if (!groups.has(ns)) groups.set(ns, []);
-  groups.get(ns)!.push({ tag, label, n });
+  groups.get(ns)!.push({ tag, label: value, n });
 }
 for (const arr of groups.values()) {
   arr.sort((a, b) => b.n - a.n || a.label.localeCompare(b.label));
 }
 
-const knownKeys = NS_ORDER.filter((ns) => groups.has(ns));
-const extraKeys = [...groups.keys()].filter((ns) => !NS_ORDER.includes(ns)).sort();
+const knownKeys = NAMESPACE_ORDER.filter((ns) => groups.has(ns));
+const extraKeys = [...groups.keys()].filter((ns) => !NAMESPACE_ORDER.includes(ns as never)).sort();
 const ordered = [...knownKeys, ...extraKeys].map((ns) => ({
-  name: NS_LABELS[ns] ?? ns,
+  name: namespaceLabel(ns),
   tags: groups.get(ns)!,
 }));
 ---

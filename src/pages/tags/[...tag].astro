@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PostIndex from '../../components/PostIndex.astro';
 import { getPosts } from '../../lib/posts';
+import { parseTag, namespaceLabel, tagDescription } from '../../lib/tags';
 
 export async function getStaticPaths() {
   const all = await getPosts();
@@ -13,18 +14,30 @@ export async function getStaticPaths() {
 }
 const { posts, all } = Astro.props;
 const { tag } = Astro.params;
+const { ns, value } = parseTag(tag!);
+const nsLabel = ns ? namespaceLabel(ns) : '';
+const desc = tagDescription(tag!);
 ---
-<Base title={`标签：${tag}`} description={`标签「${tag}」下的全部文章`}>
+<Base title={`标签：${value}`} description={desc ?? `标签「${tag}」下的全部文章`}>
   <main class="container">
     <header class="head">
-      <h1 class="name">#{tag}</h1>
-      <p class="meta-ui">共 {posts.length} 篇</p>
+      {nsLabel && <div class="kicker">{nsLabel}</div>}
+      <h1 class="name">{value}</h1>
+      {desc && <p class="desc">{desc}</p>}
+      <p class="meta-ui">共 {posts.length} 篇 · <a class="back" href="/tags/">全部标签 →</a></p>
     </header>
     <PostIndex posts={posts} all={all} />
   </main>
 </Base>
 
 <style>
-  .head { padding: 64px 0 40px; }
+  .head { padding: 64px 0 36px; }
+  .kicker { margin-bottom: 10px; }
   .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 12px; }
+  .desc {
+    font-family: var(--font-serif); font-size: 15px; color: var(--dim);
+    line-height: 1.9; max-width: 40em; margin: 0 0 14px;
+  }
+  .back { color: var(--dim); text-decoration: none; }
+  .back:hover { color: var(--accent); }
 </style>

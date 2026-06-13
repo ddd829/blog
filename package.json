@@ -11,7 +11,8 @@
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint:tags": "vitest run tests/tags.test.ts"
   },
   "repository": {
     "type": "git",
