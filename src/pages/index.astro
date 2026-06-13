@@ -5,16 +5,57 @@ import { SECTIONS } from '../config';
 import { formatCnDate } from '../lib/format-date';
 
 const all = await getPosts();
-const posts = all.slice(0, 12);
+const posts = all.slice(0, 24);
+
+// 确定性伪随机（按索引播种，构建可复现、无布局抖动）
+function makeRng(seed: number) {
+  let s = (seed * 9301 + 49297) % 233280;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+}
+
+// 网格 + 抖动散布；尺寸分层做出“星图”纵深
+const cols = Math.max(2, Math.ceil(Math.sqrt(posts.length)));
+const rows = Math.max(1, Math.ceil(posts.length / cols));
+const stars = posts.map((post, i) => {
+  const r = makeRng(i + 7);
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  const left = 15 + ((col + 0.5) / cols) * 70 + (r() - 0.5) * (55 / cols);
+  const top = 14 + ((row + 0.5) / rows) * 70 + (r() - 0.5) * (50 / rows);
+  const size = i === 0 ? 37 : Math.round(20 + r() * 15);
+  const dx = Math.round((r() - 0.5) * 30);
+  const dy = Math.round((r() - 0.5) * 30);
+  const rot = ((r() - 0.5) * 4).toFixed(1);
+  const dur = (10 + r() * 9).toFixed(1);
+  const delay = (r() * -10).toFixed(1);
+  return { post, left, top, size, dx, dy, rot, dur, delay };
+});
 ---
 <Base>
-  <main class="container">
+  <main class="container home">
     <header class="intro">
       <p class="epigraph">Homo sum, humani nihil a me alienum puto.</p>
       <div class="attrib">— Terence</div>
     </header>
 
-    <section class="latest">
+    <!-- 漂浮标题星图（宽屏 + 允许动效时显示） -->
+    <div class="stage" aria-label="文章星图">
+      {stars.map((s) => (
+        <a
+          class="star"
+          href={`/${s.post.id}/`}
+          style={`left:${s.left}%; top:${s.top}%; font-size:${s.size}px; --dx:${s.dx}px; --dy:${s.dy}px; --rot:${s.rot}deg; --dur:${s.dur}s; --delay:${s.delay}s;`}
+        >
+          <span class="star-float"><span class="star-label">{s.post.data.title}</span></span>
+        </a>
+      ))}
+    </div>
+
+    <!-- 降级：手机 / 减动效 / 无 JS 时的整洁列表 -->
+    <section class="fallback">
       <div class="label">最新文章</div>
       <div class="feed">
         {posts.map((post) => (
@@ -25,37 +66,59 @@ const posts = all.slice(0, 12);
           </a>
         ))}
       </div>
-      <a class="more" href="/archives/">全部文章 →</a>
     </section>
+
+    <a class="more" href="/archives/">全部文章 →</a>
   </main>
 </Base>
 
 <style>
   /* 题词 */
-  .intro { max-width: 560px; padding-top: 88px; }
+  .intro { max-width: 560px; padding-top: 72px; }
   .epigraph {
     font-family: var(--font-display); font-style: italic; font-weight: 400;
-    font-size: clamp(26px, 3.4vw, 37px); line-height: 1.4; color: var(--ink); margin: 0;
+    font-size: clamp(24px, 3vw, 33px); line-height: 1.4; color: var(--ink); margin: 0;
   }
   .attrib {
     text-align: right; font-family: var(--font-display); font-weight: 500;
-    font-size: 17px; color: var(--dim); margin-top: 14px;
+    font-size: 16px; color: var(--dim); margin-top: 12px;
   }
 
-  /* 最新文章 */
-  .latest { max-width: 720px; margin-top: 64px; }
+  /* 星图舞台 */
+  .stage { position: relative; min-height: 62vh; margin-top: 36px; }
+  .star {
+    position: absolute; transform: translate(-50%, -50%);
+    max-width: 14em; text-align: center; text-decoration: none;
+  }
+  .star-float {
+    display: inline-block;
+    animation: drift var(--dur) ease-in-out var(--delay) infinite alternate;
+    will-change: transform;
+  }
+  .star-label {
+    display: inline-block; font-family: var(--font-serif); font-weight: 600;
+    line-height: 1.35; color: var(--ink);
+    transition: transform 0.28s ease, color 0.28s ease;
+  }
+  @keyframes drift {
+    from { transform: translate(0, 0) rotate(0deg); }
+    to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+  }
+  .star:hover, .star:focus-visible { z-index: 5; outline: none; }
+  .star:hover .star-float, .star:focus-visible .star-float { animation-play-state: paused; }
+  .star:hover .star-label, .star:focus-visible .star-label {
+    transform: scale(1.09); color: var(--accent);
+  }
+
+  /* 降级列表（默认隐藏） */
+  .fallback { display: none; max-width: 720px; }
   .label {
     font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.16em;
     color: var(--faint); padding-bottom: 14px; border-bottom: 1px solid var(--ink);
   }
-  .entry {
-    display: block; text-decoration: none;
-    padding: 30px 0; border-top: 1px solid var(--hair);
-  }
+  .entry { display: block; text-decoration: none; padding: 30px 0; border-top: 1px solid var(--hair); }
   .feed .entry:first-child { border-top: 0; }
-  .meta {
-    font-family: var(--font-ui); font-size: 12.5px; letter-spacing: 0.06em; color: var(--faint);
-  }
+  .meta { font-family: var(--font-ui); font-size: 12.5px; letter-spacing: 0.06em; color: var(--faint); }
   .title {
     font-family: var(--font-serif); font-weight: 600; font-size: 21px;
     line-height: 1.5; margin: 12px 0 0; color: var(--ink); transition: color 0.18s;
@@ -65,15 +128,18 @@ const posts = all.slice(0, 12);
     line-height: 1.9; margin: 10px 0 0; max-width: 40em;
   }
   .entry:hover .title { color: var(--accent); }
+
   .more {
-    display: inline-block; margin-top: 32px;
+    display: inline-block; margin-top: 40px;
     font-family: var(--font-ui); font-size: 13px; letter-spacing: 0.08em;
     color: var(--dim); text-decoration: none;
   }
   .more:hover { color: var(--accent); }
 
-  @media (max-width: 720px) {
+  /* 手机 / 减动效 / 无障碍：用列表替代星图 */
+  @media (max-width: 860px), (prefers-reduced-motion: reduce) {
+    .stage { display: none; }
+    .fallback { display: block; }
     .intro { padding-top: 52px; }
-    .latest { margin-top: 48px; }
   }
 </style>
