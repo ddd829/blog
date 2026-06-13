@@ -39,14 +39,9 @@ const cosmos = Array.from({ length: 120 }, () => {
 ---
 <Base>
   <main class="container home">
-    <header class="intro">
-      <p class="epigraph"><span class="oq">“</span>Homo sum, humani nihil a me alienum puto.</p>
-      <div class="attrib"><span class="rule"></span>Terence</div>
-    </header>
-
-    <!-- 漂浮标题星图（宽屏 + 允许动效时由 JS 启用；漂浮由 CSS 合成器动画完成） -->
-    <div class="stage" data-stage>
-      <svg class="starfield" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <!-- 全视口深空背景（仅暗色 + 宽屏显示；四周遮罩柔化，无边界） -->
+    <div class="cosmos" aria-hidden="true">
+      <svg class="starfield" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice">
         {cosmos.map((s) => (
           <circle
             class:list={['twinkle', { bright: s.bright }]}
@@ -57,6 +52,15 @@ const cosmos = Array.from({ length: 120 }, () => {
           />
         ))}
       </svg>
+    </div>
+
+    <header class="intro">
+      <p class="epigraph"><span class="oq">“</span>Homo sum, humani nihil a me alienum puto.</p>
+      <div class="attrib"><span class="rule"></span>Terence</div>
+    </header>
+
+    <!-- 漂浮标题（宽屏 + 允许动效时由 JS 启用） -->
+    <div class="stage" data-stage>
       {stars.map((s) => (
         <a class="star" href={`/${s.post.id}/`} style={`font-size:${s.size}px`}>
           <span class="star-label">{s.post.data.title}</span>
@@ -98,18 +102,34 @@ const cosmos = Array.from({ length: 120 }, () => {
   }
   .attrib .rule { width: 42px; height: 1px; background: var(--accent-soft); }
 
-  /* 星图舞台：题词下方区域，默认隐藏，JS 在宽屏 + 允许动效时启用 */
+  /* 内容浮于星空之上 */
+  .intro, .more { position: relative; }
+
+  /* 漂浮标题区域：题词下方，默认隐藏，JS 在宽屏 + 允许动效时启用 */
   .stage { position: relative; min-height: 58vh; margin-top: 44px; display: none; }
   .home.constellation-on .stage { display: block; }
   .home.constellation-on .fallback { display: none; }
 
-  /* 背景宇宙群星 */
+  /* 全视口深空背景：固定铺满，四周径向遮罩柔化（无矩形边界）。仅暗色 + 宽屏显示 */
+  .cosmos {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    display: none; overflow: hidden;
+    -webkit-mask-image: radial-gradient(125% 90% at 50% 46%, #000 46%, transparent 100%);
+    mask-image: radial-gradient(125% 90% at 50% 46%, #000 46%, transparent 100%);
+  }
+  :global([data-theme='dark']) .home.constellation-on .cosmos {
+    display: block;
+    background:
+      radial-gradient(34% 38% at 26% 30%, rgba(92, 116, 210, 0.16), transparent 70%),
+      radial-gradient(30% 36% at 80% 70%, rgba(156, 96, 186, 0.12), transparent 72%);
+  }
   .starfield {
-    position: absolute; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px);
-    color: var(--faint); pointer-events: none; z-index: 0;
-    animation: field-drift 90s ease-in-out infinite alternate;
+    position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px);
+    color: #d6def2; pointer-events: none;
+    animation: field-drift 100s ease-in-out infinite alternate;
   }
   .starfield circle { fill: currentColor; opacity: var(--o, 0.4); }
+  .starfield .bright { filter: drop-shadow(0 0 2.2px currentColor); }
   .twinkle {
     animation-name: twinkle; animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
@@ -120,19 +140,11 @@ const cosmos = Array.from({ length: 120 }, () => {
   }
   @keyframes field-drift {
     from { transform: translate(0, 0); }
-    to { transform: translate(-14px, -10px); }
-  }
-
-  /* 暗色模式：深邃宇宙——更亮的星、亮星泛光、极淡星云 */
-  :global([data-theme='dark']) .starfield { color: #d6def2; }
-  :global([data-theme='dark']) .starfield .bright { filter: drop-shadow(0 0 2.2px currentColor); }
-  :global([data-theme='dark']) .home.constellation-on .stage {
-    background:
-      radial-gradient(55% 45% at 24% 28%, rgba(92, 116, 210, 0.13), transparent 70%),
-      radial-gradient(48% 42% at 80% 72%, rgba(156, 96, 186, 0.10), transparent 72%);
+    to { transform: translate(-18px, -12px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .starfield, .twinkle { animation: none; }
+    .starfield { animation: none; }
+    .twinkle { animation: none; }
   }
 
   .star {
