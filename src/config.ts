@@ -20,8 +20,8 @@ export const SECTIONS: Record<SectionKey, { name: string; mode: PostMode; desc: 
 
 // 在 https://giscus.app 完成配置后填入四个值（仓库需开启 Discussions）
 export const GISCUS = {
-  repo: '',        // 形如 'ddd829/dingfanx-blog'
-  repoId: '',
+  repo: 'ddd829/blog',
+  repoId: 'R_kgDOSUjzsg',
   category: 'Announcements',
-  categoryId: '',
+  categoryId: 'DIC_kwDOSUjzss4C_E8g',
 };
