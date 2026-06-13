@@ -68,6 +68,12 @@
     document.body.style.overflow = '';
   }
 
+  const esc = (s: string) =>
+    s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
+
+  // 视图转场：点击结果跳转后关闭覆盖层并解锁滚动（覆盖层是跨页保持的）
+  document.addEventListener('astro:page-load', close);
+
   addEventListener('open-search', open);
   overlay.querySelector('[data-search-close]')!.addEventListener('click', close);
   addEventListener('keydown', (e) => {
@@ -91,7 +97,7 @@
         ? items
             .map(
               (d) =>
-                `<a class="result" href="${d.url}"><div class="t">${d.meta.title ?? d.url}</div><div class="x">${d.excerpt}</div></a>`
+                `<a class="result" href="${esc(d.url)}"><div class="t">${esc(d.meta.title ?? d.url)}</div><div class="x">${d.excerpt}</div></a>`
             )
             .join('')
         : '<p class="hint meta-ui">没有找到相关内容。</p>';

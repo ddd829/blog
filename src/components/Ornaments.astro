@@ -10,6 +10,7 @@
   function spawn(x: number, y: number, size?: number) {
     const el = document.createElement('span');
     el.className = 'fleuron';
+    el.setAttribute('aria-hidden', 'true');
     el.textContent = GLYPHS[(Math.random() * GLYPHS.length) | 0];
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
@@ -41,6 +42,7 @@
   function toast(msg: string) {
     const el = document.createElement('div');
     el.className = 'fleuron-toast';
+    el.setAttribute('aria-hidden', 'true');
     el.textContent = msg;
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 2600);

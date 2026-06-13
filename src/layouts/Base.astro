@@ -30,6 +30,8 @@ const { title, description = SITE.description, surface = 'paper', ogImage, jsonL
 const fullTitle = title ? `${title} — ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, SITE.url).href;
 const og = ogImage ?? new URL('/og-default.png', SITE.url).href;
+// 转义 < 防止标题中的 </script> 破断 JSON-LD 脚本块（健壮性 + 防注入）
+const jsonLdHtml = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
 ---
 <html lang="zh-CN">
   <head>
@@ -47,7 +49,7 @@ const og = ogImage ?? new URL('/og-default.png', SITE.url).href;
     <meta property="og:type" content="website" />
     <meta property="og:image" content={og} />
     <meta name="twitter:card" content="summary_large_image" />
-    {jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {jsonLdHtml && <script is:inline type="application/ld+json" set:html={jsonLdHtml} />}
     <ClientRouter />
     <script is:inline>
       window.__applyTheme = () => {
