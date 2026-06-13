@@ -8,12 +8,12 @@ for (const p of all) for (const t of p.data.tags) counts.set(t, (counts.get(t) ?
 
 // 标签采用 命名空间/值 体系（subject/ topic/ type/ project/ source/），按命名空间分组展示
 const NS_LABELS: Record<string, string> = {
-  subject: '主体',
-  topic: '话题',
-  type: '类型',
-  project: '项目',
-  source: '来源',
-  '': '其它',
+  subject: 'Subject',
+  topic: 'Topic',
+  type: 'Type',
+  project: 'Project',
+  source: 'Source',
+  '': 'Other',
 };
 const NS_ORDER = ['subject', 'topic', 'type', 'project', 'source', ''];
 

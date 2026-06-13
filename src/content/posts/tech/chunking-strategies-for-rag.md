@@ -6,13 +6,12 @@ summary: >-
   基于 Pinecone Chunking Strategies 的精读笔记。重点整理了 chunk size 的双重影响、embedding 容量瓶颈与
   lost-in-the-middle 的本质区别、RAG vs long context 的工程权衡、以及切分与增强的正交矩阵思维。
 tags:
-  - rag
-  - chunking
-  - embedding
-  - retrieval
-  - llm
-  - ai-engineering
-  - learning-note
+  - subject/RAG
+  - subject/LLM
+  - topic/chunking
+  - topic/retrieval
+  - topic/embedding
+  - type/study-note
 ---
 
 
