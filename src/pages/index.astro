@@ -63,6 +63,19 @@ function layer(
 const farStars = layer(120, 0.3, 1.0, 0.16, 0.46, ['#c8d4ee', '#d6e0f4', '#bfcceb'], 99);
 const nearStars = layer(44, 0.8, 2.4, 0.5, 1.0, ['#eef3ff', '#dfe7fb', '#f4e7d0', '#f6dcbe', '#cdd8f0'], 51);
 const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4);
+
+// 亮色模式：暮山流萤——背景萤火（装饰，置于山峦之上的天空区域）
+const fireflies = (() => {
+  const rng = makeRng(77);
+  return Array.from({ length: 46 }, () => ({
+    x: +(rng() * 1000).toFixed(1),
+    y: +(rng() * 400).toFixed(1),
+    r: +(0.9 + rng() * 1.7).toFixed(2),
+    o: +(0.35 + rng() * 0.5).toFixed(2),
+    dur: +(2.6 + rng() * 4).toFixed(1),
+    delay: +(-rng() * 8).toFixed(1),
+  }));
+})();
 ---
 <Base>
   <main class="container home">
@@ -89,6 +102,20 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4);
         <div class="meteor" style="top:30%;left:44%;--ang:13deg;--dur:33s;--delay:-15s"><i></i></div>
         <div class="meteor" style="top:9%;left:63%;--ang:26deg;--dur:41s;--delay:-27s"><i></i></div>
       </div>
+    </div>
+
+    <!-- 暮山流萤背景（仅亮色 + 宽屏 + 允许动效） -->
+    <div class="duskscape" aria-hidden="true">
+      <svg class="fireflies" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
+        {fireflies.map((f) => (
+          <circle class="firefly twinkle" cx={f.x} cy={f.y} r={f.r} style={`--o:${f.o};animation-duration:${f.dur}s;animation-delay:${f.delay}s`} />
+        ))}
+      </svg>
+      <svg class="ridges" viewBox="0 0 1200 420" preserveAspectRatio="none">
+        <path class="ridge r3" d="M0,420 L0,235 C150,200 330,250 480,230 C650,208 820,255 980,232 C1080,218 1150,238 1200,228 L1200,420 Z" />
+        <path class="ridge r2" d="M0,420 L0,300 C180,262 360,300 520,288 C700,274 860,312 1020,290 C1110,278 1160,300 1200,292 L1200,420 Z" />
+        <path class="ridge r1" d="M0,420 L0,338 C160,315 380,345 560,330 C740,316 900,352 1080,334 C1140,328 1175,340 1200,336 L1200,420 Z" />
+      </svg>
     </div>
 
     <header class="intro">
@@ -237,6 +264,31 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4);
 
   /* 暗色文章星点：金色发光，显著区别于背景白蓝星尘 */
   :global([data-theme='dark']) .dot { box-shadow: 0 0 5px color-mix(in srgb, var(--accent) 65%, transparent); }
+  /* 亮色文章星点：暖金光晕，化为可追随的流萤 */
+  :global([data-theme='light']) .dot { box-shadow: 0 0 7px color-mix(in srgb, #e2ad62 70%, transparent); }
+
+  /* 暮山流萤背景：固定铺满，顶部遮罩淡入纸面；仅亮色 + 宽屏 + 允许动效显示 */
+  .duskscape {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none; display: none; overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(245, 232, 212, 0) 45%,
+      rgba(243, 216, 186, 0.3) 76%,
+      rgba(233, 194, 164, 0.46) 100%
+    );
+  }
+  .ridges { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 46vh; }
+  .ridge.r3 { fill: #cdd4dd; }
+  .ridge.r2 { fill: #b3bccb; }
+  .ridge.r1 { fill: #98a3b5; }
+  .fireflies {
+    position: absolute; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px);
+    animation: field-drift-near 70s ease-in-out infinite alternate;
+  }
+  .firefly { fill: #e2ad62; opacity: var(--o, 0.5); filter: drop-shadow(0 0 2px rgba(226, 173, 98, 0.85)); }
 
   /* 列表（默认可见） */
   .fallback { display: block; max-width: 720px; }
@@ -275,6 +327,7 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4);
         radial-gradient(32% 38% at 80% 70%, rgba(150, 92, 184, 0.13), transparent 72%),
         radial-gradient(64% 24% at 60% 52%, rgba(120, 140, 205, 0.07), transparent 72%);
     }
+    :global([data-theme='light']) .duskscape { display: block; }
   }
 
   /* 手机：题词缩进收紧 */
