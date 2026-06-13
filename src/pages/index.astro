@@ -24,8 +24,8 @@ const stars = posts.map((post, i) => {
 <Base>
   <main class="container home">
     <header class="intro">
-      <p class="epigraph">Homo sum, humani nihil a me alienum puto.</p>
-      <div class="attrib">— Terence</div>
+      <p class="epigraph"><span class="oq">“</span>Homo sum, humani nihil a me alienum puto.</p>
+      <div class="attrib"><span class="rule"></span>Terence</div>
     </header>
 
     <!-- 漂浮标题星图（宽屏 + 允许动效时由 JS 启用） -->
@@ -57,15 +57,22 @@ const stars = posts.map((post, i) => {
 
 <style>
   /* 题词 */
-  .intro { max-width: 560px; padding-top: 72px; }
+  .intro { max-width: 640px; padding-top: 80px; }
   .epigraph {
     font-family: var(--font-display); font-style: italic; font-weight: 400;
-    font-size: clamp(24px, 3vw, 33px); line-height: 1.4; color: var(--ink); margin: 0;
+    font-size: clamp(31px, 4.6vw, 52px); line-height: 1.22; color: var(--ink);
+    margin: 0; letter-spacing: 0.004em;
+  }
+  .oq {
+    color: var(--accent); font-size: 1.35em; line-height: 0;
+    vertical-align: -0.2em; margin-right: 0.02em;
   }
   .attrib {
-    text-align: right; font-family: var(--font-display); font-weight: 500;
-    font-size: 16px; color: var(--dim); margin-top: 12px;
+    display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+    font-family: var(--font-display); font-style: italic; font-weight: 500;
+    font-size: 19px; color: var(--dim); margin-top: 22px;
   }
+  .attrib .rule { width: 42px; height: 1px; background: var(--accent-soft); }
 
   /* 星图舞台：默认隐藏，JS 在宽屏 + 允许动效时启用 */
   .stage { position: relative; min-height: 64vh; margin-top: 36px; display: none; }
@@ -75,7 +82,6 @@ const stars = posts.map((post, i) => {
   .star {
     position: absolute; left: 0; top: 0;
     max-width: 14em; text-align: center; text-decoration: none;
-    will-change: transform;
   }
   .star-label {
     display: inline-block; font-family: var(--font-serif); font-weight: 600;
@@ -122,9 +128,12 @@ const stars = posts.map((post, i) => {
   let raf = 0;
   let onResize: (() => void) | null = null;
 
-  function stop() {
+  function pause() {
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
+  }
+  function stop() {
+    pause();
     if (onResize) { removeEventListener('resize', onResize); onResize = null; }
     document.querySelector('.home')?.classList.remove('constellation-on');
   }
@@ -156,7 +165,7 @@ const stars = posts.map((post, i) => {
       it.el.addEventListener('pointerleave', () => frozen.delete(it));
       it.el.addEventListener('focus', () => frozen.add(it));
       it.el.addEventListener('blur', () => frozen.delete(it));
-      it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
+      it.el.style.transform = `translate(${Math.round(it.x)}px, ${Math.round(it.y)}px)`;
     }
 
     let last = performance.now();
@@ -164,7 +173,7 @@ const stars = posts.map((post, i) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       step(items, W, H, pad, dt, frozen);
-      for (const it of items) it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
+      for (const it of items) it.el.style.transform = `translate(${Math.round(it.x)}px, ${Math.round(it.y)}px)`;
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -175,5 +184,6 @@ const stars = posts.map((post, i) => {
   }
 
   document.addEventListener('astro:page-load', start);
+  document.addEventListener('astro:before-preparation', pause); // 导航一开始就冻结动画，避免抢占主线程拖慢跳转
   document.addEventListener('astro:before-swap', stop);
 </script>
