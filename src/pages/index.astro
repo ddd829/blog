@@ -158,7 +158,6 @@ const stars = posts.map((post, i) => {
     place(items, W, H, pad);
 
     for (const it of items) {
-      it.el.addEventListener('pointerdown', pause); // 点击瞬间冻结，避免拖慢跳转
       it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
     }
 
