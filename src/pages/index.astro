@@ -7,7 +7,7 @@ import { formatCnDate } from '../lib/format-date';
 const all = await getPosts();
 const posts = all.slice(0, 24);
 
-// 确定性伪随机（按索引播种，构建可复现、无布局抖动）
+// 仅在服务端决定字号分层（做出星图纵深）；位置与运动由客户端物理接管
 function makeRng(seed: number) {
   let s = (seed * 9301 + 49297) % 233280;
   return () => {
@@ -15,23 +15,10 @@ function makeRng(seed: number) {
     return s / 233280;
   };
 }
-
-// 网格 + 抖动散布；尺寸分层做出“星图”纵深
-const cols = Math.max(2, Math.ceil(Math.sqrt(posts.length)));
-const rows = Math.max(1, Math.ceil(posts.length / cols));
 const stars = posts.map((post, i) => {
   const r = makeRng(i + 7);
-  const col = i % cols;
-  const row = Math.floor(i / cols);
-  const left = 15 + ((col + 0.5) / cols) * 70 + (r() - 0.5) * (55 / cols);
-  const top = 14 + ((row + 0.5) / rows) * 70 + (r() - 0.5) * (50 / rows);
-  const size = i === 0 ? 37 : Math.round(20 + r() * 15);
-  const dx = Math.round((r() - 0.5) * 30);
-  const dy = Math.round((r() - 0.5) * 30);
-  const rot = ((r() - 0.5) * 4).toFixed(1);
-  const dur = (10 + r() * 9).toFixed(1);
-  const delay = (r() * -10).toFixed(1);
-  return { post, left, top, size, dx, dy, rot, dur, delay };
+  const size = i === 0 ? 36 : Math.round(20 + r() * 14);
+  return { post, size };
 });
 ---
 <Base>
@@ -41,20 +28,16 @@ const stars = posts.map((post, i) => {
       <div class="attrib">— Terence</div>
     </header>
 
-    <!-- 漂浮标题星图（宽屏 + 允许动效时显示） -->
-    <div class="stage" aria-label="文章星图">
+    <!-- 漂浮标题星图（宽屏 + 允许动效时由 JS 启用） -->
+    <div class="stage" data-stage aria-label="文章星图">
       {stars.map((s) => (
-        <a
-          class="star"
-          href={`/${s.post.id}/`}
-          style={`left:${s.left}%; top:${s.top}%; font-size:${s.size}px; --dx:${s.dx}px; --dy:${s.dy}px; --rot:${s.rot}deg; --dur:${s.dur}s; --delay:${s.delay}s;`}
-        >
-          <span class="star-float"><span class="star-label">{s.post.data.title}</span></span>
+        <a class="star" href={`/${s.post.id}/`} style={`font-size:${s.size}px`}>
+          <span class="star-label">{s.post.data.title}</span>
         </a>
       ))}
     </div>
 
-    <!-- 降级：手机 / 减动效 / 无 JS 时的整洁列表 -->
+    <!-- 默认 / 手机 / 减动效 / 无 JS：整洁列表 -->
     <section class="fallback">
       <div class="label">最新文章</div>
       <div class="feed">
@@ -84,15 +67,14 @@ const stars = posts.map((post, i) => {
     font-size: 16px; color: var(--dim); margin-top: 12px;
   }
 
-  /* 星图舞台 */
-  .stage { position: relative; min-height: 62vh; margin-top: 36px; }
+  /* 星图舞台：默认隐藏，JS 在宽屏 + 允许动效时启用 */
+  .stage { position: relative; min-height: 64vh; margin-top: 36px; display: none; }
+  .home.constellation-on .stage { display: block; }
+  .home.constellation-on .fallback { display: none; }
+
   .star {
-    position: absolute; transform: translate(-50%, -50%);
+    position: absolute; left: 0; top: 0;
     max-width: 14em; text-align: center; text-decoration: none;
-  }
-  .star-float {
-    display: inline-block;
-    animation: drift var(--dur) ease-in-out var(--delay) infinite alternate;
     will-change: transform;
   }
   .star-label {
@@ -100,18 +82,13 @@ const stars = posts.map((post, i) => {
     line-height: 1.35; color: var(--ink);
     transition: transform 0.28s ease, color 0.28s ease;
   }
-  @keyframes drift {
-    from { transform: translate(0, 0) rotate(0deg); }
-    to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
-  }
   .star:hover, .star:focus-visible { z-index: 5; outline: none; }
-  .star:hover .star-float, .star:focus-visible .star-float { animation-play-state: paused; }
   .star:hover .star-label, .star:focus-visible .star-label {
     transform: scale(1.09); color: var(--accent);
   }
 
-  /* 降级列表（默认隐藏） */
-  .fallback { display: none; max-width: 720px; }
+  /* 列表（默认可见） */
+  .fallback { display: block; max-width: 720px; }
   .label {
     font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.16em;
     color: var(--faint); padding-bottom: 14px; border-bottom: 1px solid var(--ink);
@@ -136,10 +113,67 @@ const stars = posts.map((post, i) => {
   }
   .more:hover { color: var(--accent); }
 
-  /* 手机 / 减动效 / 无障碍：用列表替代星图 */
-  @media (max-width: 860px), (prefers-reduced-motion: reduce) {
-    .stage { display: none; }
-    .fallback { display: block; }
-    .intro { padding-top: 52px; }
-  }
+  @media (max-width: 860px) { .intro { padding-top: 52px; } }
 </style>
+
+<script>
+  import { place, step, type Box } from '../lib/constellation';
+
+  let raf = 0;
+  let onResize: (() => void) | null = null;
+
+  function stop() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    if (onResize) { removeEventListener('resize', onResize); onResize = null; }
+    document.querySelector('.home')?.classList.remove('constellation-on');
+  }
+
+  function start() {
+    stop();
+    const home = document.querySelector('.home');
+    const stage = document.querySelector('[data-stage]');
+    if (!home || !stage) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (innerWidth <= 860) return;
+
+    home.classList.add('constellation-on');
+    const els = [...stage.querySelectorAll('.star')] as HTMLElement[];
+    if (!els.length) return;
+
+    const W = stage.clientWidth;
+    const H = (stage as HTMLElement).clientHeight;
+    const pad = 18;
+    const items = els.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { el, w: r.width, h: r.height, x: 0, y: 0, vx: 0, vy: 0 };
+    });
+    place(items, W, H, pad);
+
+    const frozen = new Set<Box>();
+    for (const it of items) {
+      it.el.addEventListener('pointerenter', () => frozen.add(it));
+      it.el.addEventListener('pointerleave', () => frozen.delete(it));
+      it.el.addEventListener('focus', () => frozen.add(it));
+      it.el.addEventListener('blur', () => frozen.delete(it));
+      it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
+    }
+
+    let last = performance.now();
+    const loop = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      step(items, W, H, pad, dt, frozen);
+      for (const it of items) it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+
+    let t: ReturnType<typeof setTimeout>;
+    onResize = () => { clearTimeout(t); t = setTimeout(start, 250); };
+    addEventListener('resize', onResize);
+  }
+
+  document.addEventListener('astro:page-load', start);
+  document.addEventListener('astro:before-swap', stop);
+</script>
