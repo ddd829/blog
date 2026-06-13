@@ -5,29 +5,90 @@ import { getPosts } from '../../lib/posts';
 const all = await getPosts();
 const counts = new Map<string, number>();
 for (const p of all) for (const t of p.data.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
-const tags = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-const max = tags[0]?.[1] ?? 1;
-const size = (n: number) => 14 + (n / max) * 14; // 14px–28px
+
+// 标签采用 命名空间/值 体系（subject/ topic/ type/ project/ source/），按命名空间分组展示
+const NS_LABELS: Record<string, string> = {
+  subject: '主体',
+  topic: '话题',
+  type: '类型',
+  project: '项目',
+  source: '来源',
+  '': '其它',
+};
+const NS_ORDER = ['subject', 'topic', 'type', 'project', 'source', ''];
+
+type Tag = { tag: string; label: string; n: number };
+const groups = new Map<string, Tag[]>();
+for (const [tag, n] of counts) {
+  const slash = tag.indexOf('/');
+  const ns = slash >= 0 ? tag.slice(0, slash) : '';
+  const label = slash >= 0 ? tag.slice(slash + 1) : tag;
+  if (!groups.has(ns)) groups.set(ns, []);
+  groups.get(ns)!.push({ tag, label, n });
+}
+for (const arr of groups.values()) {
+  arr.sort((a, b) => b.n - a.n || a.label.localeCompare(b.label));
+}
+
+const knownKeys = NS_ORDER.filter((ns) => groups.has(ns));
+const extraKeys = [...groups.keys()].filter((ns) => !NS_ORDER.includes(ns)).sort();
+const ordered = [...knownKeys, ...extraKeys].map((ns) => ({
+  name: NS_LABELS[ns] ?? ns,
+  tags: groups.get(ns)!,
+}));
 ---
-<Base title="标签" description="按标签浏览全部文章">
+<Base title="标签" description="按主题浏览全部文章">
   <main class="container">
     <header class="head">
       <h1 class="name">标签</h1>
-      <p class="meta-ui">{tags.length} 个标签 · {all.length} 篇文章</p>
+      <p class="meta-ui">
+        {counts.size} 个标签 · {all.length} 篇文章 ·
+        <a class="back" href="/archives/">按时间浏览 →</a>
+      </p>
     </header>
-    <div class="cloud">
-      {tags.map(([tag, n]) => (
-        <a href={`/tags/${tag}/`} style={`font-size:${size(n)}px`}>{tag}<sup>{n}</sup></a>
-      ))}
-    </div>
+
+    {ordered.map((g) => (
+      <section class="group">
+        <div class="glabel">{g.name}</div>
+        <div class="tags">
+          {g.tags.map((t) => (
+            <a class="tag" href={`/tags/${t.tag}/`}>
+              {t.label}{t.n > 1 && <span class="n">{t.n}</span>}
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
   </main>
 </Base>
 
 <style>
-  .head { padding: 64px 0 40px; }
+  .head { padding: 64px 0 28px; }
   .name { font-family: var(--font-display); font-size: 44px; font-weight: 500; margin: 0 0 12px; }
-  .cloud { display: flex; flex-wrap: wrap; gap: 18px 28px; align-items: baseline; max-width: 760px; }
-  .cloud a { text-decoration: none; font-weight: 500; line-height: 1.4; }
-  .cloud a:hover { color: var(--accent); }
-  .cloud sup { font-family: var(--font-ui); font-size: 11px; color: var(--faint); margin-left: 3px; }
+  .back { color: var(--dim); text-decoration: none; }
+  .back:hover { color: var(--accent); }
+
+  .group {
+    display: grid; grid-template-columns: 110px 1fr; gap: 28px;
+    padding: 26px 0; border-top: 1px solid var(--hair); align-items: start;
+  }
+  .glabel {
+    font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.22em;
+    color: var(--accent); padding-top: 9px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tag {
+    display: inline-flex; align-items: baseline; gap: 6px;
+    font-family: var(--font-ui); font-size: 13.5px; color: var(--dim);
+    text-decoration: none; background: var(--chip-bg);
+    border: 1px solid var(--chip-border); border-radius: 99px; padding: 6px 14px;
+    transition: border-color 0.18s, color 0.18s;
+  }
+  .tag:hover { color: var(--accent); border-color: var(--accent-soft); }
+  .tag .n { font-size: 11px; color: var(--faint); }
+
+  @media (max-width: 720px) {
+    .group { grid-template-columns: 1fr; gap: 12px; }
+    .glabel { padding-top: 0; }
+  }
 </style>

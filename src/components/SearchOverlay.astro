@@ -7,7 +7,7 @@
       <input type="search" placeholder="搜索文章…  （Esc 关闭）" data-search-input autocomplete="off" />
     </div>
     <div class="results" data-search-results>
-      <p class="hint meta-ui">输入关键词开始搜索。构建后索引才可用（dev 模式下请先 npm run build && npm run preview）。</p>
+      <p class="hint meta-ui">输入关键词，搜索全部文章。</p>
     </div>
   </div>
 </div>
@@ -53,7 +53,7 @@
       pagefind = await import(/* @vite-ignore */ url);
     } catch {
       loadFailed = true;
-      results.innerHTML = '<p class="hint meta-ui">搜索索引不可用 —— 仅在构建产物中存在（npm run build && npm run preview）。</p>';
+      results.innerHTML = '<p class="hint meta-ui">搜索暂时不可用，请稍后重试。</p>';
     }
   }
 
