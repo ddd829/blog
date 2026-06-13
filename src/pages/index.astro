@@ -32,12 +32,12 @@ const nodes = dotPosts.map((post, i) => {
     post,
     left: +left.toFixed(2),
     top: +top.toFixed(2),
-    ax: +((rng() * 2 - 1) * 12).toFixed(1),
-    ay: +((rng() * 2 - 1) * 12).toFixed(1),
-    bx: +((rng() * 2 - 1) * 12).toFixed(1),
-    by: +((rng() * 2 - 1) * 12).toFixed(1),
-    dur: +(15 + rng() * 12).toFixed(1),
-    delay: +(-rng() * 18).toFixed(1),
+    ax: +((rng() * 2 - 1) * 24).toFixed(1),
+    ay: +((rng() * 2 - 1) * 24).toFixed(1),
+    bx: +((rng() * 2 - 1) * 24).toFixed(1),
+    by: +((rng() * 2 - 1) * 24).toFixed(1),
+    dur: +(7 + rng() * 5).toFixed(1),
+    delay: +(-rng() * 12).toFixed(1),
     sz: +(3.5 + rng() * 2.5).toFixed(1),
   };
 });
@@ -160,7 +160,13 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4);
     border-radius: 50%; background: var(--accent);
     transform: translate(-50%, -50%);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: dot-pulse 4.5s ease-in-out var(--delay, 0s) infinite;
   }
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .node:hover .dot, .node:focus-visible .dot { animation: none; }
   .node-label {
     position: absolute; left: 50%; bottom: 50%;
     transform: translate(-50%, -14px);
