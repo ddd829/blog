@@ -1,51 +1,65 @@
 ---
 import Base from '../layouts/Base.astro';
-import PostIndex from '../components/PostIndex.astro';
 import { getPosts } from '../lib/posts';
 import { SECTIONS } from '../config';
 import { formatCnDate } from '../lib/format-date';
 
 const all = await getPosts();
-const [hero, ...rest] = all;
-const recent = rest.slice(0, 10);
+const posts = all.slice(0, 12);
 ---
 <Base>
   <main class="container">
-    {hero && (
-      <section class="hero">
-        <div class="kicker">{SECTIONS[hero.section].name} · {formatCnDate(hero.data.date)}</div>
-        <h1 class="hero-title"><a href={`/${hero.id}/`}>{hero.data.title}</a></h1>
-        {hero.data.summary && (
-          <div class="hero-lead">
-            <span class="rule"></span>
-            <p>{hero.data.summary}</p>
-          </div>
-        )}
-      </section>
-    )}
-    <section class="recent">
-      <PostIndex posts={recent} all={all} />
-      <a class="more meta-ui" href="/archives/">全部文章 →</a>
-    </section>
+    <div class="feed">
+      {posts.map((post, i) => (
+        <a class:list={['entry', { featured: i === 0 }]} href={`/${post.id}/`}>
+          <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
+          <h2 class="title">{post.data.title}</h2>
+          {post.data.summary && <p class="summary">{post.data.summary}</p>}
+        </a>
+      ))}
+      <a class="more" href="/archives/">全部文章 →</a>
+    </div>
   </main>
 </Base>
 
 <style>
-  .hero { padding: 84px 0 96px; }
-  .hero-title { margin: 18px 0 0; max-width: 17em; }
-  .hero-title a {
-    font-family: var(--font-display);
-    font-size: clamp(34px, 5.4vw, 60px);
-    line-height: 1.16; font-weight: 500; text-decoration: none;
+  .feed { max-width: 720px; padding-top: 8px; }
+
+  .entry {
+    display: block; text-decoration: none;
+    padding: 32px 0; border-top: 1px solid var(--hair);
   }
-  .hero-title a:hover { color: var(--accent); }
-  .hero-lead { display: flex; gap: 48px; margin-top: 34px; align-items: baseline; }
-  .rule { width: 64px; height: 1px; background: var(--ink); flex-shrink: 0; }
-  .hero-lead p {
-    font-family: var(--font-ui); font-weight: 300; font-size: 14.5px;
-    line-height: 2; color: var(--dim); max-width: 34em; margin: 0;
+  .feed .entry:first-child { border-top: 0; padding-top: 48px; }
+
+  .meta {
+    font-family: var(--font-ui); font-size: 12.5px; letter-spacing: 0.06em;
+    color: var(--faint);
   }
-  .more { display: inline-block; margin-top: 26px; text-decoration: none; letter-spacing: 0.1em; }
+  .title {
+    font-family: var(--font-serif); font-weight: 600; font-size: 21px;
+    line-height: 1.5; margin: 12px 0 0; color: var(--ink);
+    transition: color 0.18s;
+  }
+  .summary {
+    font-family: var(--font-serif); font-size: 15px; color: var(--dim);
+    line-height: 1.9; margin: 10px 0 0; max-width: 40em;
+  }
+  .entry:hover .title { color: var(--accent); }
+
+  /* 最新一篇作头条：同一结构，仅放大 */
+  .entry.featured { padding-top: 56px; }
+  .entry.featured .title { font-size: 33px; line-height: 1.32; margin-top: 14px; }
+  .entry.featured .summary { font-size: 16px; margin-top: 14px; }
+
+  .more {
+    display: inline-block; margin-top: 36px;
+    font-family: var(--font-ui); font-size: 13px; letter-spacing: 0.08em;
+    color: var(--dim); text-decoration: none;
+  }
   .more:hover { color: var(--accent); }
-  @media (max-width: 720px) { .hero { padding: 48px 0 56px; } .hero-lead { gap: 20px; } }
+
+  @media (max-width: 720px) {
+    .feed .entry:first-child, .entry.featured { padding-top: 28px; }
+    .entry.featured .title { font-size: 27px; }
+  }
 </style>
