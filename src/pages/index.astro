@@ -6,39 +6,69 @@ import { formatCnDate } from '../lib/format-date';
 
 const all = await getPosts();
 const posts = all.slice(0, 12);
+const sections = Object.entries(SECTIONS);
 ---
 <Base>
   <main class="container">
-    <div class="feed">
-      {posts.map((post, i) => (
-        <a class:list={['entry', { featured: i === 0 }]} href={`/${post.id}/`}>
-          <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
-          <h2 class="title">{post.data.title}</h2>
-          {post.data.summary && <p class="summary">{post.data.summary}</p>}
-        </a>
-      ))}
+    <header class="intro">
+      <p class="manifesto">这里记录技术学习、财经思考与中外文学，一份持续生长的个人刊物。</p>
+      <nav class="scope" aria-label="栏目">
+        {sections.map(([key, s], i) => (
+          <>
+            {i > 0 && <span class="dot">·</span>}
+            <a href={`/${key}/`}>{s.name}</a>
+          </>
+        ))}
+      </nav>
+    </header>
+
+    <section class="latest">
+      <div class="label">最新文章</div>
+      <div class="feed">
+        {posts.map((post) => (
+          <a class="entry" href={`/${post.id}/`}>
+            <div class="meta">{SECTIONS[post.section].name} · {formatCnDate(post.data.date)}</div>
+            <h2 class="title">{post.data.title}</h2>
+            {post.data.summary && <p class="summary">{post.data.summary}</p>}
+          </a>
+        ))}
+      </div>
       <a class="more" href="/archives/">全部文章 →</a>
-    </div>
+    </section>
   </main>
 </Base>
 
 <style>
-  .feed { max-width: 720px; padding-top: 8px; }
+  /* 门面 */
+  .intro { max-width: 720px; padding: 76px 0 0; }
+  .manifesto {
+    font-family: var(--font-display); font-size: clamp(25px, 3.2vw, 32px);
+    font-weight: 500; line-height: 1.55; color: var(--ink); margin: 0; max-width: 18em;
+  }
+  .scope { margin-top: 26px; font-family: var(--font-ui); font-size: 14px; letter-spacing: 0.04em; }
+  .scope a { color: var(--dim); text-decoration: none; }
+  .scope a:hover { color: var(--accent); }
+  .scope .dot { color: var(--hair); margin: 0 11px; }
+
+  /* 最新文章 */
+  .latest { max-width: 720px; margin-top: 64px; }
+  .label {
+    font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.16em;
+    color: var(--faint); padding-bottom: 14px; border-bottom: 1px solid var(--ink);
+  }
 
   .entry {
     display: block; text-decoration: none;
-    padding: 32px 0; border-top: 1px solid var(--hair);
+    padding: 30px 0; border-top: 1px solid var(--hair);
   }
-  .feed .entry:first-child { border-top: 0; padding-top: 48px; }
-
+  .feed .entry:first-child { border-top: 0; }
   .meta {
     font-family: var(--font-ui); font-size: 12.5px; letter-spacing: 0.06em;
     color: var(--faint);
   }
   .title {
     font-family: var(--font-serif); font-weight: 600; font-size: 21px;
-    line-height: 1.5; margin: 12px 0 0; color: var(--ink);
-    transition: color 0.18s;
+    line-height: 1.5; margin: 12px 0 0; color: var(--ink); transition: color 0.18s;
   }
   .summary {
     font-family: var(--font-serif); font-size: 15px; color: var(--dim);
@@ -46,20 +76,15 @@ const posts = all.slice(0, 12);
   }
   .entry:hover .title { color: var(--accent); }
 
-  /* 最新一篇作头条：同一结构，仅放大 */
-  .entry.featured { padding-top: 56px; }
-  .entry.featured .title { font-size: 33px; line-height: 1.32; margin-top: 14px; }
-  .entry.featured .summary { font-size: 16px; margin-top: 14px; }
-
   .more {
-    display: inline-block; margin-top: 36px;
+    display: inline-block; margin-top: 32px;
     font-family: var(--font-ui); font-size: 13px; letter-spacing: 0.08em;
     color: var(--dim); text-decoration: none;
   }
   .more:hover { color: var(--accent); }
 
   @media (max-width: 720px) {
-    .feed .entry:first-child, .entry.featured { padding-top: 28px; }
-    .entry.featured .title { font-size: 27px; }
+    .intro { padding-top: 44px; }
+    .latest { margin-top: 44px; }
   }
 </style>
