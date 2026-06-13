@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { place, anyOverlap, type Box } from '../src/lib/constellation';
+import { place, step, anyOverlap, type Box } from '../src/lib/constellation';
 
-// 可复现的伪随机，让测试确定、不抖动
 function seeded(seed: number) {
   let s = seed % 2147483647;
   if (s <= 0) s += 2147483646;
@@ -22,16 +21,15 @@ afterEach(() => {
 function makeItems(n: number): Box[] {
   const items: Box[] = [];
   for (let i = 0; i < n; i++) {
-    // 含漂浮余量后的盒子
-    items.push({ w: 170 + Math.random() * 90, h: 88 + Math.random() * 24, x: 0, y: 0 });
+    items.push({ w: 120 + Math.random() * 80, h: 40 + Math.random() * 20, x: 0, y: 0, vx: 0, vy: 0 });
   }
   return items;
 }
 
-describe('constellation placement', () => {
+describe('constellation physics', () => {
   const W = 1100;
-  const H = 620;
-  const pad = 14;
+  const H = 560;
+  const pad = 16;
 
   it('places items without overlap', () => {
     const items = makeItems(8);
@@ -39,20 +37,27 @@ describe('constellation placement', () => {
     expect(anyOverlap(items, 1)).toBe(false);
   });
 
-  it('keeps every item inside the stage', () => {
+  it('stays non-overlapping and in-bounds over many frames', () => {
     const items = makeItems(8);
     place(items, W, H, pad);
-    for (const a of items) {
-      expect(a.x).toBeGreaterThanOrEqual(0);
-      expect(a.y).toBeGreaterThanOrEqual(0);
-      expect(a.x + a.w).toBeLessThanOrEqual(W + 0.5);
-      expect(a.y + a.h).toBeLessThanOrEqual(H + 0.5);
+    for (let f = 0; f < 1500; f++) {
+      step(items, W, H, pad, 1 / 60);
+      if (f % 50 === 0) {
+        expect(anyOverlap(items, 1)).toBe(false);
+        for (const a of items) {
+          expect(a.x).toBeGreaterThanOrEqual(-0.5);
+          expect(a.y).toBeGreaterThanOrEqual(-0.5);
+          expect(a.x + a.w).toBeLessThanOrEqual(W + 0.5);
+          expect(a.y + a.h).toBeLessThanOrEqual(H + 0.5);
+        }
+      }
     }
   });
 
-  it('handles the current small post count cleanly', () => {
+  it('keeps the small current post count non-overlapping over time', () => {
     const items = makeItems(5);
     place(items, W, H, pad);
+    for (let f = 0; f < 800; f++) step(items, W, H, pad, 1 / 60);
     expect(anyOverlap(items, 1)).toBe(false);
   });
 });

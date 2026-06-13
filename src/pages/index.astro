@@ -76,14 +76,8 @@ const stars = posts.map((post, i) => {
   .home.constellation-on .fallback { display: none; }
 
   .star {
-    position: absolute; max-width: 14em; text-align: center; text-decoration: none;
-    animation: drift var(--dur, 22s) ease-in-out var(--delay, 0s) infinite;
-  }
-  @keyframes drift {
-    0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(var(--ax, 0px), var(--by, 0px)); }
-    50% { transform: translate(var(--bx, 0px), var(--ay, 0px)); }
-    75% { transform: translate(var(--cx, 0px), var(--cy, 0px)); }
+    position: absolute; left: 0; top: 0;
+    max-width: 14em; text-align: center; text-decoration: none;
   }
   .star-label {
     display: inline-block; font-family: var(--font-serif); font-weight: 600;
@@ -127,11 +121,17 @@ const stars = posts.map((post, i) => {
 </style>
 
 <script>
-  import { place } from '../lib/constellation';
+  import { place, step } from '../lib/constellation';
 
+  let raf = 0;
   let onResize: (() => void) | null = null;
 
+  function pause() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
   function stop() {
+    pause();
     if (onResize) { removeEventListener('resize', onResize); onResize = null; }
     document.querySelector('.home')?.classList.remove('constellation-on');
   }
@@ -150,30 +150,27 @@ const stars = posts.map((post, i) => {
 
     const W = stage.clientWidth;
     const H = stage.clientHeight;
-    const amp = 24; // 漂浮幅度
-    const pad = 14;
-
-    // 用"含漂浮余量"的盒子布点，保证漂浮时也不重叠
+    const pad = 16;
     const items = els.map((el) => {
       const r = el.getBoundingClientRect();
-      return { el, w: r.width + amp * 2, h: r.height + amp * 2, x: 0, y: 0 };
+      return { el, w: r.width, h: r.height, x: 0, y: 0, vx: 0, vy: 0 };
     });
     place(items, W, H, pad);
 
-    const rnd = (m: number) => ((Math.random() * 2 - 1) * m).toFixed(1) + 'px';
     for (const it of items) {
-      const el = it.el;
-      el.style.left = `${it.x + amp}px`;
-      el.style.top = `${it.y + amp}px`;
-      el.style.setProperty('--ax', rnd(amp));
-      el.style.setProperty('--ay', rnd(amp));
-      el.style.setProperty('--bx', rnd(amp));
-      el.style.setProperty('--by', rnd(amp));
-      el.style.setProperty('--cx', rnd(amp));
-      el.style.setProperty('--cy', rnd(amp));
-      el.style.setProperty('--dur', `${(20 + Math.random() * 14).toFixed(1)}s`);
-      el.style.setProperty('--delay', `${(-Math.random() * 24).toFixed(1)}s`);
+      it.el.addEventListener('pointerdown', pause); // 点击瞬间冻结，避免拖慢跳转
+      it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
     }
+
+    let last = performance.now();
+    const loop = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      step(items, W, H, pad, dt);
+      for (const it of items) it.el.style.transform = `translate(${it.x}px, ${it.y}px)`;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
 
     let t: ReturnType<typeof setTimeout>;
     onResize = () => { clearTimeout(t); t = setTimeout(start, 250); };
@@ -181,5 +178,6 @@ const stars = posts.map((post, i) => {
   }
 
   document.addEventListener('astro:page-load', start);
+  document.addEventListener('astro:before-preparation', pause);
   document.addEventListener('astro:before-swap', stop);
 </script>
