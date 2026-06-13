@@ -12,55 +12,61 @@
 <script>
   import mediumZoom from 'medium-zoom';
 
-  // 阅读进度
-  const bar = document.querySelector('[data-progress]') as HTMLElement;
-  const update = () => {
+  // 阅读进度：全局监听一次，每帧查询当前页进度条（页面会随视图转场被替换）
+  const updateProgress = () => {
+    const bar = document.querySelector('[data-progress]') as HTMLElement | null;
+    if (!bar) return;
     const max = document.documentElement.scrollHeight - innerHeight;
     bar.style.width = max > 0 ? `${(scrollY / max) * 100}%` : '0';
   };
-  addEventListener('scroll', update, { passive: true });
-  update();
+  addEventListener('scroll', updateProgress, { passive: true });
 
-  // 代码块：头栏（文件名 + 复制）
-  document.querySelectorAll('pre.astro-code').forEach((pre) => {
-    const head = document.createElement('div');
-    head.className = 'code-head';
-    const title = pre.getAttribute('data-title');
-    const span = document.createElement('span');
-    span.textContent = title ?? '';
-    head.appendChild(span);
-    const btn = document.createElement('button');
-    btn.className = 'code-copy';
-    btn.textContent = '复制';
-    btn.addEventListener('click', async () => {
-      await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? '');
-      btn.textContent = '已复制 ✓';
-      setTimeout(() => (btn.textContent = '复制'), 1600);
+  function enhance() {
+    updateProgress();
+
+    // 代码块：头栏（文件名 + 复制），幂等，避免重复注入
+    document.querySelectorAll('pre.astro-code').forEach((pre) => {
+      if (pre.querySelector('.code-head')) return;
+      const head = document.createElement('div');
+      head.className = 'code-head';
+      const title = pre.getAttribute('data-title');
+      const span = document.createElement('span');
+      span.textContent = title ?? '';
+      head.appendChild(span);
+      const btn = document.createElement('button');
+      btn.className = 'code-copy';
+      btn.textContent = '复制';
+      btn.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? '');
+        btn.textContent = '已复制 ✓';
+        setTimeout(() => (btn.textContent = '复制'), 1600);
+      });
+      head.appendChild(btn);
+      pre.appendChild(head);
     });
-    head.appendChild(btn);
-    pre.appendChild(head);
-  });
 
-  // 图片灯箱
-  mediumZoom('.prose img', { margin: 32, background: 'color-mix(in srgb, var(--bg) 92%, transparent)' });
+    // 图片灯箱
+    mediumZoom('.prose img', { margin: 32, background: 'color-mix(in srgb, var(--bg) 92%, transparent)' });
 
-  // Mermaid 懒加载（仅页面存在 mermaid 围栏时）
-  const mermaidBlocks = document.querySelectorAll('pre.astro-code[data-language="mermaid"]');
-  if (mermaidBlocks.length) {
-    const mermaidUrl = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    import(/* @vite-ignore */ mermaidUrl).then(
-      async ({ default: mermaid }) => {
+    // Mermaid 懒加载（仅页面存在 mermaid 围栏时）
+    const mermaidBlocks = document.querySelectorAll('pre.astro-code[data-language="mermaid"]');
+    if (mermaidBlocks.length) {
+      const mermaidUrl = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      import(/* @vite-ignore */ mermaidUrl).then(async ({ default: mermaid }) => {
         const dark = document.documentElement.dataset.theme === 'dark';
         mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'neutral' });
         let i = 0;
         for (const pre of mermaidBlocks) {
           const src = (pre as HTMLElement).querySelector('code')?.innerText ?? '';
-          const { svg } = await mermaid.render(`mmd-${i++}`, src);
+          const { svg } = await mermaid.render(`mmd-${Date.now()}-${i++}`, src);
           const fig = document.createElement('figure');
           fig.innerHTML = svg;
           pre.replaceWith(fig);
         }
-      }
-    );
+      });
+    }
   }
+
+  enhance();
+  document.addEventListener('astro:page-load', enhance);
 </script>

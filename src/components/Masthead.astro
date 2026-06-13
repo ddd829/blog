@@ -2,7 +2,7 @@
 import { SECTIONS } from '../config';
 const current = Astro.url.pathname.split('/')[1] ?? '';
 ---
-<header class="masthead">
+<header class="masthead" transition:persist="masthead">
   <div class="top container">
     <a class="wordmark" href="/">Dingfan&nbsp;X<span class="dot">.</span></a>
     <div class="utils">
@@ -26,7 +26,7 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
   </nav>
 </header>
 
-<div class="minibar" data-minibar>
+<div class="minibar" data-minibar transition:persist="minibar">
   <div class="container inner">
     <a class="mini-mark" href="/">D<span class="dot">.</span></a>
     <nav class="mini-nav">
@@ -107,4 +107,16 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
   document.querySelectorAll('[data-search-open]').forEach((btn) =>
     btn.addEventListener('click', () => dispatchEvent(new CustomEvent('open-search')))
   );
+
+  // 页头跨页保持，导航后据 URL 重算当前栏目高亮
+  function syncCurrent() {
+    const cur = location.pathname.split('/')[1] ?? '';
+    document.querySelectorAll<HTMLAnchorElement>('.navband .item, .mini-nav a').forEach((a) => {
+      const key = (a.getAttribute('href') ?? '').split('/')[1] ?? '';
+      a.classList.toggle('cur', key !== '' && key === cur);
+    });
+    // 导航后回到顶部，确保粘性条收起
+    document.querySelector('[data-minibar]')?.classList.remove('show');
+  }
+  document.addEventListener('astro:page-load', syncCurrent);
 </script>

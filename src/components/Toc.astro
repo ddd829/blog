@@ -30,13 +30,17 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
 </style>
 
 <script>
-  const toc = document.querySelector('[data-toc]');
-  if (toc) {
+  let tocObs: IntersectionObserver | undefined;
+
+  function initToc() {
+    tocObs?.disconnect();
+    const toc = document.querySelector('[data-toc]');
+    if (!toc) return;
     const links = [...toc.querySelectorAll('.toc-item')] as HTMLElement[];
     const targets = links
       .map((l) => document.getElementById(l.dataset.target!))
       .filter(Boolean) as HTMLElement[];
-    const obs = new IntersectionObserver(
+    tocObs = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (e.isIntersecting) {
@@ -46,6 +50,9 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
       },
       { rootMargin: '-72px 0px -70% 0px' }
     );
-    targets.forEach((t) => obs.observe(t));
+    targets.forEach((t) => tocObs!.observe(t));
   }
+
+  initToc();
+  document.addEventListener('astro:page-load', initToc);
 </script>
