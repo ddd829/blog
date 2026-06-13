@@ -26,7 +26,7 @@ const jsonLd = blogPostingLd(post);
 <Base
   title={post.data.title}
   description={post.data.summary ?? `${SITE.title} · ${SECTIONS[post.section].name}`}
-  surface="plain"
+  surface="paper"
   ogImage={new URL(`/og/${post.id}.png`, SITE.url).href}
   jsonLd={jsonLd}
 >
@@ -61,7 +61,7 @@ const jsonLd = blogPostingLd(post);
     font-size: clamp(27px, 3.4vw, 36px); line-height: 1.4;
     font-weight: 700; margin: 14px 0 0; letter-spacing: 0.005em;
   }
-  .meta { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .meta { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; font-family: var(--font-serif); font-size: 14px; color: var(--dim); }
   .sep { color: var(--hair); }
   .chip {
     background: var(--chip-bg); border: 1px solid var(--chip-border);

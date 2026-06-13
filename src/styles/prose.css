@@ -35,8 +35,8 @@
 .prose blockquote {
   margin: 36px 0; padding: 4px 0 4px 26px;
   border-left: 2px solid var(--accent);
-  font-family: var(--font-display); font-style: italic;
-  font-size: 1.1em; line-height: 1.9; color: var(--dim);
+  font-family: var(--font-serif);
+  font-size: 1.05em; line-height: 1.9; color: var(--dim);
 }
 .prose blockquote p { margin: 0; }
 .prose .callout {

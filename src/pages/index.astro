@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import PostIndex from '../components/PostIndex.astro';
 import { getPosts } from '../lib/posts';
-import { postNumber } from '../lib/numbering';
 import { SECTIONS } from '../config';
 import { formatCnDate } from '../lib/format-date';
 
@@ -14,7 +13,7 @@ const recent = rest.slice(0, 10);
   <main class="container">
     {hero && (
       <section class="hero">
-        <div class="kicker">N° {String(postNumber(hero, all)).padStart(3, '0')} · {SECTIONS[hero.section].name} · {formatCnDate(hero.data.date)}</div>
+        <div class="kicker">{SECTIONS[hero.section].name} · {formatCnDate(hero.data.date)}</div>
         <h1 class="hero-title"><a href={`/${hero.id}/`}>{hero.data.title}</a></h1>
         {hero.data.summary && (
           <div class="hero-lead">

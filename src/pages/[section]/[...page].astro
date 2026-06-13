@@ -36,9 +36,8 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page, all } = Astro.props;
 const section = Astro.params.section as SectionKey;
 const info = SECTIONS[section];
-const surface = info.mode === 'tech' ? 'plain' : 'paper';
 ---
-<Base title={info.name} description={info.desc} surface={surface}>
+<Base title={info.name} description={info.desc} surface="paper">
   <main class="container">
     <header class="head">
       <h1 class="name">{info.name}</h1>

@@ -1,9 +1,13 @@
 .prose-essay { font-size: 16.5px; line-height: 2.15; }
-.prose-essay > p:first-of-type::first-letter {
+.prose-essay.dropcap > p:first-of-type::first-letter {
   font-family: var(--font-display);
   font-size: 3.4em; line-height: 0.8;
   float: left; margin: 10px 10px 0 0;
   color: var(--accent);
+}
+/* 随笔正文的引文恢复展示衬线斜体（人文内容少含技术数字） */
+.prose-essay blockquote {
+  font-family: var(--font-display); font-style: italic; font-size: 1.1em;
 }
 .prose-essay h2 {
   font-size: 24px; font-weight: 600; margin: 56px 0 0;

@@ -7,7 +7,6 @@ import RelatedPosts from '../components/RelatedPosts.astro';
 import Giscus from '../components/Giscus.astro';
 import PostEnhance from '../components/PostEnhance.astro';
 import { SECTIONS, SITE } from '../config';
-import { postNumber } from '../lib/numbering';
 import { readingTime } from '../lib/reading-time';
 import type { Post } from '../lib/posts';
 import { blogPostingLd } from '../lib/json-ld';
@@ -19,7 +18,7 @@ interface Props {
   post: Post; all: Post[]; headings: MarkdownHeading[];
   prev?: Post | undefined; next?: Post | undefined; related: Post[];
 }
-const { post, all, headings, prev, next, related } = Astro.props;
+const { post, headings, prev, next, related } = Astro.props;
 const rt = readingTime(post.body ?? '');
 const d = post.data.date;
 const jsonLd = blogPostingLd(post);
@@ -35,8 +34,7 @@ const jsonLd = blogPostingLd(post);
   <main>
     <header class="head">
       <div class="kicker">
-        N° {String(postNumber(post, all)).padStart(3, '0')} · {SECTIONS[post.section].name} ·
-        {formatCnDate(d)}
+        {SECTIONS[post.section].name} · {formatCnDate(d)}
       </div>
       <h1>{post.data.title}</h1>
       <div class="meta meta-ui">
@@ -50,7 +48,7 @@ const jsonLd = blogPostingLd(post);
 
     <div class="body container">
       <aside class="side"><div class="sticky"><Toc headings={headings} /></div></aside>
-      <article class="prose prose-essay"><slot /></article>
+      <article class="prose prose-essay dropcap"><slot /></article>
       <div></div>
     </div>
 
@@ -69,7 +67,7 @@ const jsonLd = blogPostingLd(post);
     font-size: clamp(30px, 4.2vw, 46px);
     line-height: 1.25; font-weight: 500; margin: 22px 0 0;
   }
-  .meta { margin-top: 20px; letter-spacing: 0.08em; }
+  .meta { font-family: var(--font-serif); font-size: 14px; color: var(--dim); margin-top: 20px; letter-spacing: 0.04em; }
   .tag { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--hair); margin-left: 10px; }
   .tag:hover { color: var(--accent); }
   .rule { width: 48px; height: 1px; background: var(--ink); margin: 40px auto 0; }
