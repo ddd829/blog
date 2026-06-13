@@ -37,12 +37,17 @@ const jsonLd = blogPostingLd(post);
         {SECTIONS[post.section].name} · {formatCnDate(d)}
       </div>
       <h1>{post.data.title}</h1>
-      <div class="meta meta-ui">
+      <div class="meta">
         约 {rt.words.toLocaleString()} 字 · 阅读 {rt.minutes} 分钟
-        {post.data.tags.map((t) => (
-          <a class="tag" href={`/tags/${t}/`}>#{t}</a>
-        ))}
+        {post.data.updated && <> · 更新于 {formatCnDate(post.data.updated)}</>}
       </div>
+      {post.data.tags.length > 0 && (
+        <div class="tags">
+          {post.data.tags.map((t) => (
+            <a class="tag" href={`/tags/${t}/`}>#{t}</a>
+          ))}
+        </div>
+      )}
       <div class="rule"></div>
     </header>
 
@@ -68,8 +73,13 @@ const jsonLd = blogPostingLd(post);
     line-height: 1.25; font-weight: 500; margin: 22px 0 0;
   }
   .meta { font-family: var(--font-serif); font-size: 14px; color: var(--dim); margin-top: 20px; letter-spacing: 0.04em; }
-  .tag { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--hair); margin-left: 10px; }
-  .tag:hover { color: var(--accent); }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+  .tag {
+    font-family: var(--font-ui); font-size: 12.5px; color: var(--dim);
+    text-decoration: none; background: var(--chip-bg);
+    border: 1px solid var(--chip-border); border-radius: 99px; padding: 4px 12px;
+  }
+  .tag:hover { color: var(--accent); border-color: var(--accent-soft); }
   .rule { width: 48px; height: 1px; background: var(--ink); margin: 40px auto 0; }
   .body { display: grid; grid-template-columns: 180px minmax(0, var(--w-essay)) 180px; gap: 0; justify-content: center; padding-top: 48px; }
   .side .sticky { position: sticky; top: 84px; }

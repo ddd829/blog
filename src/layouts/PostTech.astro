@@ -36,12 +36,21 @@ const jsonLd = blogPostingLd(post);
       <header class="head">
         <a class="sec" href={`/${post.section}/`}>{SECTIONS[post.section].name}</a>
         <h1>{post.data.title}</h1>
-        <div class="meta meta-ui">
-          <span>{formatCnDate(d)}</span><span class="sep">·</span><span>{rt.minutes} 分钟</span>
-          {post.data.tags.map((t) => (
-            <a class="chip" href={`/tags/${t}/`}>{t}</a>
-          ))}
+        <div class="meta">
+          <span>{formatCnDate(d)}</span>
+          <span class="sep">·</span><span>{rt.minutes} 分钟读完</span>
+          <span class="sep">·</span><span>{rt.words.toLocaleString()} 字</span>
+          {post.data.updated && (
+            <><span class="sep">·</span><span>更新于 {formatCnDate(post.data.updated)}</span></>
+          )}
         </div>
+        {post.data.tags.length > 0 && (
+          <div class="tags">
+            {post.data.tags.map((t) => (
+              <a class="chip" href={`/tags/${t}/`}>{t}</a>
+            ))}
+          </div>
+        )}
       </header>
       <article class="prose prose-tech"><slot /></article>
       <PostFootNav prev={prev} next={next} />
@@ -61,14 +70,15 @@ const jsonLd = blogPostingLd(post);
     font-size: clamp(27px, 3.4vw, 36px); line-height: 1.4;
     font-weight: 700; margin: 14px 0 0; letter-spacing: 0.005em;
   }
-  .meta { display: flex; align-items: center; gap: 10px; margin-top: 22px; flex-wrap: wrap; font-family: var(--font-serif); font-size: 14px; color: var(--dim); }
+  .meta { display: flex; align-items: center; gap: 8px; margin-top: 20px; flex-wrap: wrap; font-family: var(--font-serif); font-size: 14px; color: var(--dim); }
   .sep { color: var(--hair); }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .chip {
     background: var(--chip-bg); border: 1px solid var(--chip-border);
-    padding: 3px 10px; border-radius: 99px; font-size: 12px;
-    color: var(--dim); text-decoration: none;
+    padding: 4px 12px; border-radius: 99px; font-size: 12.5px;
+    font-family: var(--font-ui); color: var(--dim); text-decoration: none;
   }
-  .chip:hover { color: var(--accent); }
+  .chip:hover { color: var(--accent); border-color: var(--accent-soft); }
   .head { margin-bottom: 44px; }
   .side { padding-top: 8px; }
   .side .sticky { position: sticky; top: 84px; }
