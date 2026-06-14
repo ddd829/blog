@@ -4,16 +4,12 @@
 import { WALINE } from '../config';
 const configured = Boolean(WALINE.serverURL);
 ---
-<section class="comments">
-  <div class="kicker">讨论</div>
-  {configured ? (
+{configured && (
+  <section class="comments">
+    <div class="kicker">讨论</div>
     <div id="waline" data-server={WALINE.serverURL}></div>
-  ) : (
-    <p class="placeholder meta-ui">
-      评论尚未启用 —— 部署 Waline 服务端后，在 src/config.ts 填入 WALINE.serverURL 即可。
-    </p>
-  )}
-</section>
+  </section>
+)}
 
 {configured && (
   <script>
