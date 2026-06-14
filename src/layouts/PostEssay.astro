@@ -4,7 +4,7 @@ import Base from './Base.astro';
 import Toc from '../components/Toc.astro';
 import PostFootNav from '../components/PostFootNav.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
-import Giscus from '../components/Giscus.astro';
+import Comments from '../components/Comments.astro';
 import PostEnhance from '../components/PostEnhance.astro';
 import { SECTIONS, SITE } from '../config';
 import { readingTime } from '../lib/reading-time';
@@ -60,7 +60,7 @@ const jsonLd = blogPostingLd(post);
     <div class="tail">
       <PostFootNav prev={prev} next={next} />
       <RelatedPosts posts={related} />
-      <Giscus />
+      <Comments />
     </div>
   </main>
 </Base>

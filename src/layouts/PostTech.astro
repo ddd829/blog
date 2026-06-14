@@ -4,7 +4,7 @@ import Base from './Base.astro';
 import Toc from '../components/Toc.astro';
 import PostFootNav from '../components/PostFootNav.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
-import Giscus from '../components/Giscus.astro';
+import Comments from '../components/Comments.astro';
 import PostEnhance from '../components/PostEnhance.astro';
 import { SECTIONS, SITE } from '../config';
 import { readingTime } from '../lib/reading-time';
@@ -55,7 +55,7 @@ const jsonLd = blogPostingLd(post);
       <article class="prose prose-tech"><slot /></article>
       <PostFootNav prev={prev} next={next} />
       <RelatedPosts posts={related} />
-      <Giscus />
+      <Comments />
     </div>
     <aside class="side">
       <div class="sticky"><Toc headings={headings} label="本页目录" /></div>
