@@ -164,11 +164,11 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
 
     <style set:html={`
       @keyframes label-ghost {
-        0% { opacity: 0; }
-        ${kfP1}% { opacity: 0.42; }
-        ${kfP2}% { opacity: 0.42; }
-        ${kfP3}% { opacity: 0; }
-        100% { opacity: 0; }
+        0% { opacity: 0; pointer-events: none; }
+        ${kfP1}% { opacity: 0.42; pointer-events: auto; }
+        ${kfP2}% { opacity: 0.42; pointer-events: auto; }
+        ${kfP3}% { opacity: 0; pointer-events: none; }
+        100% { opacity: 0; pointer-events: none; }
       }
       .node-label { animation: label-ghost ${GHOST_T}s ease-in-out var(--ldelay, 0s) infinite; }
     `}></style>
@@ -291,7 +291,7 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
     box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 85%, transparent);
   }
   .node:hover .node-label, .node:focus-visible .node-label {
-    opacity: 1; transform: translate(-50%, -20px); animation: none;
+    opacity: 1; transform: translate(-50%, -20px); animation: none; pointer-events: auto;
   }
 
   .fallback { display: block; max-width: 720px; }
