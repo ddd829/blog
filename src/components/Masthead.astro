@@ -12,6 +12,9 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
       <button class="icon-btn" data-theme-toggle aria-label="切换深浅色">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
       </button>
+      <button class="icon-btn menu-btn" data-menu-toggle aria-label="菜单" aria-expanded="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
     </div>
   </div>
   <nav class="navband" aria-label="栏目">
@@ -41,12 +44,14 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
 </div>
 
 <style>
+  .masthead { position: relative; }
   .masthead .top { display: flex; justify-content: space-between; align-items: center; padding-top: 26px; padding-bottom: 22px; }
   .wordmark { font-family: var(--font-wordmark); font-weight: 400; font-size: 24px; text-decoration: none; }
   .dot { color: var(--accent); }
-  .utils { display: flex; gap: 14px; }
-  .icon-btn { background: none; border: 0; padding: 6px; color: var(--faint); cursor: pointer; }
+  .utils { display: flex; gap: 14px; align-items: center; }
+  .icon-btn { background: none; border: 0; padding: 6px; color: var(--faint); cursor: pointer; display: inline-flex; }
   .icon-btn:hover { color: var(--ink); }
+  .menu-btn { display: none; }
 
   .navband { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
   .navband .inner { display: flex; gap: 40px; overflow-x: auto; scrollbar-width: none; }
@@ -61,7 +66,20 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
   .item.cur::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--ink); }
   .spacer { flex: 1; }
   .sub { color: var(--dim); }
-  @media (max-width: 720px) { .navband .inner { gap: 26px; } .spacer { min-width: 8px; flex: 0; } }
+  @media (max-width: 720px) {
+    .menu-btn { display: inline-flex; }
+    .masthead .top { border-bottom: 1px solid var(--hair); }
+    .navband {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 40;
+      background: var(--bg); border-top: 0; border-bottom: 1px solid var(--hair);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.07); display: none;
+    }
+    .masthead.menu-open .navband { display: block; }
+    .navband .inner { flex-direction: column; gap: 0; overflow: visible; padding-top: 2px; padding-bottom: 10px; }
+    .navband .item { width: 100%; padding: 13px 2px; }
+    .navband .item.cur::after { display: none; }
+    .spacer { display: none; }
+  }
 
   .minibar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -108,6 +126,25 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
     btn.addEventListener('click', () => dispatchEvent(new CustomEvent('open-search')))
   );
 
+  // 手机端：菜单下拉开关
+  const menuBtn = document.querySelector('[data-menu-toggle]');
+  const mast = document.querySelector('.masthead');
+  function setMenu(open: boolean) {
+    mast?.classList.toggle('menu-open', open);
+    menuBtn?.setAttribute('aria-expanded', String(open));
+  }
+  menuBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setMenu(!mast?.classList.contains('menu-open'));
+  });
+  document.querySelectorAll('.navband .item').forEach((a) =>
+    a.addEventListener('click', () => setMenu(false))
+  );
+  document.addEventListener('click', (e) => {
+    if (mast?.classList.contains('menu-open') && !(e.target as HTMLElement).closest('.masthead')) setMenu(false);
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+
   // 页头跨页保持，导航后据 URL 重算当前栏目高亮
   function syncCurrent() {
     const cur = location.pathname.split('/')[1] ?? '';
@@ -115,7 +152,7 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
       const key = (a.getAttribute('href') ?? '').split('/')[1] ?? '';
       a.classList.toggle('cur', key !== '' && key === cur);
     });
-    // 导航后回到顶部，确保粘性条收起
+    setMenu(false); // 换页关闭菜单
     document.querySelector('[data-minibar]')?.classList.remove('show');
   }
   document.addEventListener('astro:page-load', syncCurrent);
