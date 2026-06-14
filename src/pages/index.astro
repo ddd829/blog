@@ -63,19 +63,7 @@ function layer(
 }
 const farStars = layer(130, 0.3, 0.9, 0.14, 0.42, ['#c8d4ee', '#d6e0f4', '#bfcceb'], 99);
 const nearStars = layer(40, 0.7, 1.55, 0.45, 0.92, ['#eef3ff', '#dfe7fb', '#f4e7d0', '#cdd8f0'], 51);
-
-// 亮色：萤火（暖金微光，浮动其间）
-const fireflies = (() => {
-  const rng = makeRng(77);
-  return Array.from({ length: 30 }, () => ({
-    x: +(rng() * 1000).toFixed(1),
-    y: +(rng() * 600).toFixed(1),
-    r: +(0.7 + rng() * 1.2).toFixed(2),
-    o: +(0.28 + rng() * 0.42).toFixed(2),
-    dur: +(2.6 + rng() * 4).toFixed(1),
-    delay: +(-rng() * 8).toFixed(1),
-  }));
-})();
+const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮几颗加十字星芒
 ---
 <Base>
   <main class="container home">
@@ -89,6 +77,12 @@ const fireflies = (() => {
       <svg class="starfield near" viewBox={`0 0 ${FW} ${FH}`} preserveAspectRatio="xMidYMid slice">
         {nearStars.map((s) => (
           <circle class="twinkle" cx={s.x} cy={s.y} r={s.r} fill={s.c} style={`--o:${s.o};animation-duration:${s.dur}s;animation-delay:${s.delay}s`} />
+        ))}
+        {spikes.map((s) => (
+          <g class="spike">
+            <line x1={s.x - 7} y1={s.y} x2={s.x + 7} y2={s.y} />
+            <line x1={s.x} y1={s.y - 7} x2={s.x} y2={s.y + 7} />
+          </g>
         ))}
       </svg>
       <div class="meteors">
@@ -106,50 +100,8 @@ const fireflies = (() => {
       <div class="attrib"><span class="rule"></span>Immanuel Kant</div>
     </header>
 
-    <!-- 中间画布：亮色暮山流萤 + 文章星点（宽屏 + 允许动效显示） -->
+    <!-- 中间画布：文章星点（宽屏 + 允许动效显示）。亮色为素净纸面，暗色为深空 -->
     <nav class="stage" aria-label="文章星图">
-      <!-- 亮色：简笔山水 + 孤舟 + 萤火渔火（限定画布内，四周融进留白） -->
-      <div class="duskscape" aria-hidden="true">
-        <svg class="inkscape" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <filter id="inkSoft" x="-5%" y="-15%" width="110%" height="130%"><feGaussianBlur stdDeviation="0.6" /></filter>
-            <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#7e8794" stop-opacity="0.16" />
-              <stop offset="0.6" stop-color="#7e8794" stop-opacity="0.05" />
-              <stop offset="1" stop-color="#7e8794" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-          <!-- 远山：淡墨韵 + 勾线 -->
-          <g filter="url(#inkSoft)">
-            <path class="wash" fill="url(#hill)" stroke="none"
-              d="M-40,402 C70,360 130,332 210,360 C268,381 312,346 392,372 C460,394 512,352 600,368 C672,381 716,346 806,366 C880,382 928,352 1020,368 C1098,381 1150,360 1240,372 L1240,600 L-40,600 Z" />
-            <path class="ink ink-far" fill="none"
-              d="M-40,402 C70,360 130,332 210,360 C268,381 312,346 392,372 C460,394 512,352 600,368 C672,381 716,346 806,366 C880,382 928,352 1020,368 C1098,381 1150,360 1240,372" />
-            <path class="ink ink-near" fill="none"
-              d="M-40,458 C90,404 200,378 322,418 C420,450 520,402 650,424 C760,443 852,404 980,426 C1080,443 1162,420 1240,432" />
-          </g>
-          <!-- 水面：横纹（极淡，微微流动） -->
-          <g class="water" filter="url(#inkSoft)" fill="none">
-            <path class="wave" d="M120,500 C320,492 520,508 780,499 C940,493 1060,503 1180,498" />
-            <path class="wave" d="M90,518 C300,512 540,524 800,516 C960,511 1080,520 1200,515" />
-            <path class="wave" d="M150,536 C360,531 560,541 820,534 C980,530 1090,537 1170,534" />
-          </g>
-          <!-- 一叶孤舟 -->
-          <g class="boat" filter="url(#inkSoft)">
-            <path d="M806,506 C818,520 858,520 870,506 C858,513 818,513 806,506 Z" fill="#5c6571" fill-opacity="0.5" stroke="#4e555f" stroke-opacity="0.5" stroke-width="0.8" />
-            <path d="M838,506 L838,490" stroke="#4e555f" stroke-opacity="0.45" stroke-width="0.9" />
-          </g>
-        </svg>
-        <svg class="fireflies" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid slice">
-          {fireflies.map((f) => (
-            <circle class="firefly twinkle" cx={f.x} cy={f.y} r={f.r} style={`--o:${f.o};animation-duration:${f.dur}s;animation-delay:${f.delay}s`} />
-          ))}
-          <!-- 渔火：水边两点更暖更亮的光，缓缓明灭 -->
-          <circle class="lantern" cx="835" cy="498" r="2.6" />
-          <circle class="lantern" cx="690" cy="520" r="2.1" style="animation-delay:-3.5s" />
-        </svg>
-      </div>
-
       {nodes.map((n) => (
         <a
           class="node"
@@ -213,6 +165,7 @@ const fireflies = (() => {
   .starfield.near { animation: field-drift-near 88s ease-in-out infinite alternate; }
   .starfield circle { opacity: var(--o, 0.3); }
   .starfield.near circle { filter: drop-shadow(0 0 1.4px rgba(220, 230, 255, 0.6)); }
+  .spike line { stroke: rgba(226, 236, 255, 0.42); stroke-width: 0.35; }
   .twinkle { animation-name: twinkle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
   @keyframes twinkle { 0%, 100% { opacity: var(--o); } 50% { opacity: calc(var(--o) * 0.28); } }
   @keyframes field-drift { from { transform: translate(0, 0); } to { transform: translate(-12px, -9px); } }
@@ -233,38 +186,13 @@ const fireflies = (() => {
     11%, 100% { opacity: 0; transform: translateX(82vw); }
   }
 
-  /* 亮色：暮山流萤画布，限定在中间，四周径向遮罩融进留白（非矩形） */
-  .duskscape {
-    position: absolute; inset: -10% -8%; z-index: 0; pointer-events: none; display: none; overflow: hidden;
-    -webkit-mask-image: radial-gradient(82% 78% at 50% 56%, #000 38%, transparent 96%);
-    mask-image: radial-gradient(82% 78% at 50% 56%, #000 38%, transparent 96%);
-  }
-  .inkscape { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .ink-far { stroke: #7c8693; stroke-width: 1.1; opacity: 0.32; }
-  .ink-near { stroke: #565f6b; stroke-width: 1.5; opacity: 0.4; }
-  .wave { stroke: #6b7480; stroke-width: 0.9; opacity: 0.24; }
-  .water { animation: water-shimmer 7s ease-in-out infinite; }
-  @keyframes water-shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-  .fireflies {
-    position: absolute; inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px);
-    animation: field-drift-near 70s ease-in-out infinite alternate;
-  }
-  .firefly { fill: #d8a35a; opacity: var(--o, 0.4); filter: drop-shadow(0 0 1.4px rgba(216, 163, 90, 0.7)); }
-  .lantern {
-    fill: #e6a94e; filter: drop-shadow(0 0 4px rgba(230, 169, 78, 0.8));
-    animation: lantern-glow 5s ease-in-out infinite;
-  }
-  @keyframes lantern-glow { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.45; } }
-
-  :global([data-theme='dark']) .cosmos { display: block; }
   :global([data-theme='dark']) .cosmos {
+    display: block;
     background:
       radial-gradient(36% 40% at 24% 28%, rgba(86, 112, 210, 0.18), transparent 70%),
       radial-gradient(32% 38% at 80% 70%, rgba(150, 92, 184, 0.13), transparent 72%),
       radial-gradient(64% 24% at 60% 52%, rgba(120, 140, 205, 0.07), transparent 72%);
   }
-  :global([data-theme='light']) .duskscape { display: block; }
 
   /* 文章星点：唯一最亮、可点的光（明显大于背景星尘） */
   .node {
@@ -295,7 +223,7 @@ const fireflies = (() => {
     background: color-mix(in srgb, var(--bg) 80%, transparent);
     border: 1px solid var(--hair); border-radius: 7px; padding: 5px 12px;
     opacity: 0; pointer-events: none;
-    animation: label-ghost 11s ease-in-out var(--ldelay, 0s) infinite;
+    animation: label-ghost 17s ease-in-out var(--ldelay, 0s) infinite;
     transition: opacity 0.22s ease, transform 0.22s ease;
     backdrop-filter: blur(3px);
   }
