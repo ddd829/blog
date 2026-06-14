@@ -207,6 +207,10 @@ const spikes = [...nearStars].sort((a, b) => b.r - a.r).slice(0, 4); // 最亮�
     font-size: 19px; color: var(--dim); margin-top: 20px;
   }
   .attrib .rule { width: 42px; height: 1px; background: var(--accent-soft); }
+  /* 题词切换主题时更平缓、不抢眼（比全局 0.35s 更长更柔，优先级更高压过全局） */
+  .epigraph, .oq, .attrib, .attrib .rule {
+    transition: color 0.85s ease, background-color 0.85s ease !important;
+  }
 
   .stage { position: relative; min-height: 60vh; margin-top: 52px; display: none; }
 
