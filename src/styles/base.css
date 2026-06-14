@@ -8,6 +8,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 body[data-surface='plain'] { background: var(--bg-plain); }
+
+/* 切换主题时：所有元素统一做柔和颜色过渡（仅切换瞬间生效，避免错位闪烁，不影响平时交互） */
+html.theme-anim,
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease,
+    fill 0.35s ease, stroke 0.35s ease, box-shadow 0.35s ease !important;
+}
 a { color: inherit; }
 img { max-width: 100%; height: auto; }
 .container { max-width: var(--w-page); margin: 0 auto; padding: 0 48px; }

@@ -113,12 +113,17 @@ const current = Astro.url.pathname.split('/')[1] ?? '';
     });
   }
 
+  let themeAnimTimer: ReturnType<typeof setTimeout>;
   document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
     btn.addEventListener('click', () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = next;
+      const root = document.documentElement;
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.classList.add('theme-anim'); // 切换瞬间启用统一柔和过渡
+      root.dataset.theme = next;
       localStorage.setItem('theme', next);
       dispatchEvent(new CustomEvent('themechange', { detail: next }));
+      clearTimeout(themeAnimTimer);
+      themeAnimTimer = setTimeout(() => root.classList.remove('theme-anim'), 420);
     })
   );
 
