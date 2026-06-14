@@ -111,11 +111,26 @@ const fireflies = (() => {
           <circle class="firefly twinkle" cx={f.x} cy={f.y} r={f.r} style={`--o:${f.o};animation-duration:${f.dur}s;animation-delay:${f.delay}s`} />
         ))}
       </svg>
-      <svg class="ridges" viewBox="0 0 1200 420" preserveAspectRatio="none">
-        <path class="ridge r3" d="M0,420 L0,235 C150,200 330,250 480,230 C650,208 820,255 980,232 C1080,218 1150,238 1200,228 L1200,420 Z" />
-        <path class="ridge r2" d="M0,420 L0,300 C180,262 360,300 520,288 C700,274 860,312 1020,290 C1110,278 1160,300 1200,292 L1200,420 Z" />
-        <path class="ridge r1" d="M0,420 L0,338 C160,315 380,345 560,330 C740,316 900,352 1080,334 C1140,328 1175,340 1200,336 L1200,420 Z" />
+      <svg class="inkscape" viewBox="0 0 1200 600" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="mfar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#646b76" stop-opacity="0" />
+            <stop offset="0.22" stop-color="#646b76" stop-opacity="0.22" />
+            <stop offset="0.72" stop-color="#646b76" stop-opacity="0.05" />
+            <stop offset="1" stop-color="#646b76" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="mnear" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4e555f" stop-opacity="0" />
+            <stop offset="0.2" stop-color="#4e555f" stop-opacity="0.3" />
+            <stop offset="0.75" stop-color="#4e555f" stop-opacity="0.06" />
+            <stop offset="1" stop-color="#4e555f" stop-opacity="0" />
+          </linearGradient>
+          <filter id="ink" x="-8%" y="-20%" width="116%" height="140%"><feGaussianBlur stdDeviation="5" /></filter>
+        </defs>
+        <path class="m-far" filter="url(#ink)" fill="url(#mfar)" d="M0,600 L0,360 C200,320 380,362 560,338 C760,312 920,360 1120,336 C1160,331 1182,338 1200,334 L1200,600 Z" />
+        <path class="m-near" filter="url(#ink)" fill="url(#mnear)" d="M0,600 L0,432 C180,398 420,434 620,416 C820,398 980,438 1160,418 C1182,415 1192,420 1200,419 L1200,600 Z" />
       </svg>
+      <div class="mist"></div>
     </div>
 
     <header class="intro">
@@ -270,20 +285,24 @@ const fireflies = (() => {
   /* 暮山流萤背景：固定铺满，顶部遮罩淡入纸面；仅亮色 + 宽屏 + 允许动效显示 */
   .duskscape {
     position: fixed; inset: 0; z-index: -1; pointer-events: none; display: none; overflow: hidden;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
-    mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(245, 232, 212, 0) 45%,
-      rgba(243, 216, 186, 0.3) 76%,
-      rgba(233, 194, 164, 0.46) 100%
-    );
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 100%);
+    background: linear-gradient(to bottom, transparent 64%, rgba(236, 214, 186, 0.16) 100%);
   }
-  .ridges { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 46vh; }
-  .ridge.r3 { fill: #cdd4dd; }
-  .ridge.r2 { fill: #b3bccb; }
-  .ridge.r1 { fill: #98a3b5; }
+  /* 墨晕远山：渐隐填充 + 高斯模糊，无硬边；缓慢明暗呼吸 */
+  .inkscape { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .m-far { animation: ink-breathe 15s ease-in-out infinite; }
+  .m-near { animation: ink-breathe 19s ease-in-out infinite reverse; }
+  @keyframes ink-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.64; } }
+  /* 流动的薄雾 */
+  .mist {
+    position: absolute; left: -10%; right: -10%; bottom: 20%; height: 20%;
+    background: radial-gradient(55% 100% at 42% 50%, rgba(250, 248, 244, 0.5), transparent 72%);
+    filter: blur(10px);
+    animation: mist-drift 64s ease-in-out infinite alternate;
+  }
+  @keyframes mist-drift { from { transform: translateX(-3%); } to { transform: translateX(4%); } }
+  /* 萤火 */
   .fireflies {
     position: absolute; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px);
     animation: field-drift-near 70s ease-in-out infinite alternate;
