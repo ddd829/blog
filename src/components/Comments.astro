@@ -1,0 +1,53 @@
+---
+// 评论：Waline（支持评论审核、敏感词/垃圾过滤、自部署，便于合规）。
+// 部署 Waline 服务端后，在 src/config.ts 填入 WALINE.serverURL 即启用。
+import { WALINE } from '../config';
+const configured = Boolean(WALINE.serverURL);
+---
+<section class="comments">
+  <div class="kicker">讨论</div>
+  {configured ? (
+    <div id="waline" data-server={WALINE.serverURL}></div>
+  ) : (
+    <p class="placeholder meta-ui">
+      评论尚未启用 —— 部署 Waline 服务端后，在 src/config.ts 填入 WALINE.serverURL 即可。
+    </p>
+  )}
+</section>
+
+{configured && (
+  <script>
+    import { init } from '@waline/client';
+    // @ts-ignore CSS 副作用导入无类型声明
+    import '@waline/client/style';
+
+    let waline: ReturnType<typeof init> | undefined;
+    function mount() {
+      const el = document.getElementById('waline');
+      const serverURL = el?.dataset.server;
+      if (!el || !serverURL) return;
+      waline?.destroy?.();
+      waline = init({
+        el: '#waline',
+        serverURL,
+        path: location.pathname,
+        lang: 'zh-CN',
+        dark: "html[data-theme='dark']",
+        reaction: false,
+        pageview: false,
+        locale: { placeholder: '评论需经审核后显示，请文明发言、遵守法律法规…' },
+      });
+    }
+
+    mount();
+    document.addEventListener('astro:page-load', mount);
+    document.addEventListener('astro:before-swap', () => { waline?.destroy?.(); waline = undefined; });
+  </script>
+)}
+
+<style>
+  .comments { margin-top: 64px; border-top: 1px solid var(--hair); padding-top: 32px; }
+  .comments :global(#waline) { margin-top: 20px; }
+  .comments :global(.wl-panel) { border-radius: 10px; }
+  .placeholder { margin-top: 16px; line-height: 1.9; }
+</style>

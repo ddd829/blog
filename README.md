@@ -25,9 +25,15 @@
 
 构建命令 `npm run build`，输出目录 `dist`，根目录 `/`，环境变量 `NODE_VERSION=22`。
 
-## 评论（Giscus）
+## 评论（Waline）
 
-GitHub 仓库开启 Discussions → giscus.app 生成配置 → 填入 `src/config.ts` 的 `GISCUS`。
+部署 Waline 服务端（Vercel / Cloudflare + 数据库）→ 在后台开启「评论审核」(先审后发) 与敏感词/垃圾过滤 → 把服务地址填入 `src/config.ts` 的 `WALINE.serverURL`。
+若 Waline 服务在固定域名，建议把该域名加入 `public/_headers` 的 CSP `connect-src` 收紧。
+
+## 安全
+
+`public/_headers` 设置了 CSP、HSTS、`frame-ancestors 'none'`(防点击劫持)等响应头(Cloudflare Pages 自动生效)。
+账号侧请确保 GitHub / Cloudflare / 域名注册商均开启 2FA，并开启分支保护。
 
 ## 旧站
 

@@ -18,10 +18,8 @@ export const SECTIONS: Record<SectionKey, { name: string; mode: PostMode; desc: 
   reading: { name: '阅读', mode: 'essay', desc: '中外文学与札记' },
 };
 
-// 在 https://giscus.app 完成配置后填入四个值（仓库需开启 Discussions）
-export const GISCUS = {
-  repo: 'ddd829/blog',
-  repoId: 'R_kgDOSUjzsg',
-  category: 'Announcements',
-  categoryId: 'DIC_kwDOSUjzss4C_E8g',
+// 评论：部署 Waline 服务端后填入其地址，如 'https://your-waline.vercel.app'
+// 在 Waline 后台开启「评论审核」(先审后发) 与敏感词/垃圾过滤以满足合规要求。
+export const WALINE = {
+  serverURL: '',
 };
