@@ -6,7 +6,6 @@ body {
   color: var(--ink);
   font-family: var(--font-serif);
   -webkit-font-smoothing: antialiased;
-  transition: background 0.25s, color 0.25s;
 }
 body[data-surface='plain'] { background: var(--bg-plain); }
 a { color: inherit; }
